@@ -10,18 +10,39 @@ angular.module('iBoard', [
         'iBoard.controllers'
     ]).
     config(['$routeProvider', function ($routeProvider) {
+        var redirect = function (path) {
+            if (AV.User.current()) {
+                return '/'
+            } else {
+                return path
+            }
+        };
+
         $routeProvider
             .when('/', {
                 templateUrl: 'partials/home.html',
                 controller: 'HomeCtrl'
             }).when('/login', {
                 templateUrl: 'partials/login.html',
-                controller: 'LoginCtrl'
+                controller: 'LoginCtrl',
+                redirectTo: function (_, path, __) {
+                    return redirect(path)
+                }
             }).when('/register', {
                 templateUrl: 'partials/register.html',
-                controller: 'RegisterCtrl'
-            }).when('/center', {
+                controller: 'RegisterCtrl',
+                redirectTo: function (_, path, __) {
+                    return redirect(path)
+                }
+            }).when('/center/:username', {
                 templateUrl: 'partials/center.html',
-                controller: 'CenterCtrl'
+                controller: 'CenterCtrl',
+                redirectTo: function (_, path, __) {
+                    if (AV.User.current()) {
+                        return path
+                    } else {
+                        return '/login'
+                    }
+                }
             }).otherwise({redirectTo: '/'});
     }]);

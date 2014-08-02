@@ -1,8 +1,7 @@
 <div ng-include="'partials/navbar.html'"></div>
 
 <div class="container">
-    <div class="register-container">
-        <a href="/login" class="pull-right">登录</a>
+    <div class="signup-container col-lg-4 col-lg-offset-4 col-sm-6 col-sm-offset-3">
         <h4>注册</h4>
 
         <form class="form" name="form" ng-submit="register(form)" novalidate>
@@ -23,7 +22,7 @@
             </div>
             <div class="form-group">
                 <input type="text" name="username" class="form-control" ng-model="user.username"
-                       placeholder="6~18个字符，字母、数字、下划线，需字母开头"
+                       placeholder="请输入用户名"
                        required
                        ng-username="user.username"
                        ng-minlength="6"

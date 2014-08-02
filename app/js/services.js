@@ -37,8 +37,14 @@ angular.module('iBoard.services', [])
             });
         };
 
-        var logout = function () {
-            AV.User.logOut();
+        var logout = function (succCallback, errCallback) {
+            if (AV.User.current()) {
+                AV.User.logOut();
+                succCallback();
+            } else {
+                console.log("Invalid request!");
+                errCallback();
+            }
         };
 
         var resetPass = function (email, succCallback, errCallback) {
