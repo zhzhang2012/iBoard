@@ -48,7 +48,7 @@ angular.module('iBoard.controllers', [])
                     console.log(user);
                     // Resolve digest Cycle
                     $scope.$apply(function () {
-                        $location.path('/center/' + user.attributes.email);
+                        $location.path('/center/' + user.attributes.username);
                     })
                 }, function (err) {
                     console.log('get error : ' + angular.toJson(err));
@@ -59,11 +59,49 @@ angular.module('iBoard.controllers', [])
             }
         };
     }])
-    .controller('CenterCtrl', ['$scope', function ($scope) {
+    .controller('CenterCtrl', ['$scope', 'Idea', function ($scope, Idea) {
+        $scope.ideas = [];
 
+        var loadIdeas = function () {
+            Idea.getAllIdeas(function (_ideas) {
+                $scope.$apply(function () {
+                    $scope.ideas = _ideas;
+                })
+            }, function (_ideas, err) {
+                console.log(err);
+                $scope.errors = err;
+            })
+        };
+        loadIdeas();
+
+        $scope.delete = function (ideaId) {
+            Idea.deleteIdea(ideaId, function (idea) {
+                console.log("Ideas<%s> has been deleted.", idea.objectId);
+                loadIdeas();
+            }, function (err) {
+                $scope.errors = err;
+            })
+        };
     }])
-    .controller('NavbarCtrl', ['$scope', '$location', 'User', function ($scope, $location, User) {
+    .
+    controller('NavbarCtrl', ['$scope', '$location', 'User', 'Idea', function ($scope, $location, User, Idea) {
         $scope.loginUser = AV.User.current();
+        $scope.idea = {};
+        $scope.errors = {};
+
+        $scope.create = function () {
+            if ($scope.loginUser && $scope.idea.content != "") {
+                Idea.createIdea($scope.idea, function (idea) {
+                    $scope.$apply(function () {
+                        console.log("New idea created!");
+                        $("#createIdea").modal('hide');
+                    })
+                }, function (_idea, err) {
+                    console.log(err);
+                    $scope.errors.other = err;
+                })
+            }
+        };
 
         $scope.door = function (target) {
             $location.path(target);
