@@ -86,6 +86,7 @@ angular.module('iBoard.controllers', [])
     .
     controller('NavbarCtrl', ['$scope', '$location', 'User', 'Idea', function ($scope, $location, User, Idea) {
         $scope.loginUser = AV.User.current();
+        $scope.username = $scope.loginUser ? $scope.loginUser.attributes.username : null;
         $scope.idea = {};
         $scope.errors = {};
 
