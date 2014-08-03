@@ -140,7 +140,7 @@ angular.module('iBoard.services', [])
          * @param succCallback Do something with the ideas
          * @param errCallback Report the error to the calling agent
          */
-        var getAllIdeas = function (succCallback, errCallback) {
+        var getUserIdeas = function (succCallback, errCallback) {
             var Idea = AV.Object.extend("Idea");
             var query = new AV.Query(Idea);
 
@@ -159,9 +159,24 @@ angular.module('iBoard.services', [])
             })
         };
 
+        var getAllIdeas = function (succCallback, errCallback) {
+            var Idea = AV.Object.extend("Idea");
+            var query = new AV.Query(Idea);
+
+            query.find({
+                success: function (ideas) {
+                    succCallback(ideas);
+                }, error: function (_ideas, err) {
+                    console.log("Error during loading ideas");
+                    errCallback(err);
+                }
+            })
+        };
+
         return {
             createIdea: createIdea,
             deleteIdea: deleteIdea,
+            getUserIdeas: getUserIdeas,
             getAllIdeas: getAllIdeas
         }
 

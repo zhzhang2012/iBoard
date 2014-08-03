@@ -1,1 +1,36 @@
 <div ng-include="'partials/navbar.html'"></div>
+
+<div class="container">
+
+    <div class="form-group has-error">
+        <p class="error-msg">{{ errors }}</p>
+    </div>
+
+    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        <ol class="carousel-indicators">
+            <li data-target="#carousel-example-generic" ng-repeat="idea in ideas"
+                data-slide-to="{{ $index }}" ng-class="{active: $index == 0}"></li>
+        </ol>
+
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner">
+            <div class="item" ng-class="{active: $index == 0}" ng-repeat="idea in ideas">
+                <img src="img/background.jpg">
+
+                <div class="carousel-caption" style="bottom:40%">
+                    <h1>{{ idea.attributes.content }}</h1>
+                    <h4>{{ idea.createdAt }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <a class="left carousel-control" ng-click="go('prev')" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+        <a class="right carousel-control" ng-click="go('next')" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+        </a>
+    </div>
+</div>

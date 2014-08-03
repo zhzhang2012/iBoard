@@ -3,8 +3,25 @@
 /* Controllers */
 
 angular.module('iBoard.controllers', [])
-    .controller('HomeCtrl', ['$scope', '$location', 'User', function ($scope, $location, User) {
+    .controller('HomeCtrl', ['$scope', 'Idea', function ($scope, Idea) {
+        $scope.ideas = [];
 
+        Idea.getAllIdeas(function (_ideas) {
+            $scope.$apply(function () {
+                $scope.ideas = _ideas;
+                $('.carousel').carousel({
+                    interval: 5000
+                })
+            })
+        }, function (_ideas, err) {
+            $scope.$apply(function () {
+                $scope.errors = err.description;
+            })
+        })
+
+        $scope.go = function (dest) {
+            $('.carousel').carousel(dest);
+        }
     }])
     .controller('LoginCtrl', ['$scope', '$location', 'User', function ($scope, $location, User) {
         $scope.login = function (form) {
@@ -22,7 +39,7 @@ angular.module('iBoard.controllers', [])
                 }, function (err) {
                     $scope.$apply(function () {
                         console.log('get the login error : ' + angular.toJson(err));
-                        $scope.errors.other = err.message;
+                        $scope.errors.other = err.description;
                     })
                 })
 
@@ -63,7 +80,7 @@ angular.module('iBoard.controllers', [])
         $scope.ideas = [];
 
         var loadIdeas = function () {
-            Idea.getAllIdeas(function (_ideas) {
+            Idea.getUserIdeas(function (_ideas) {
                 $scope.$apply(function () {
                     $scope.ideas = _ideas;
                 })
@@ -110,6 +127,10 @@ angular.module('iBoard.controllers', [])
 
         $scope.isActive = function (route) {
             return route === $location.path();
+        };
+
+        $scope.enterCenter = function () {
+            $location.path('/center/' + $scope.loginUser.attributes.username);
         };
 
         $scope.logout = function () {
