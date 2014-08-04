@@ -10,30 +10,38 @@ angular.module('iBoard', [
         'iBoard.controllers'
     ]).
     config(['$routeProvider', function ($routeProvider) {
-        var redirect = function (path) {
-            if (AV.User.current()) {
-                return '/'
-            } else {
-                return path
-            }
-        };
+//        var redirect = function (path) {
+//            if (AV.User.current()) {
+//                return '/'
+//            } else {
+//                return path
+//            }
+//        };
 
         $routeProvider
             .when('/', {
                 templateUrl: 'partials/home.html',
-                controller: 'HomeCtrl'
-            }).when('/login', {
-                templateUrl: 'partials/login.html',
-                controller: 'LoginCtrl',
+                controller: 'HomeCtrl',
                 redirectTo: function (_, path, __) {
-                    return redirect(path)
+                    if (AV.User.current()) {
+                        return '/center/' +
+                            AV.User.current().attributes.username
+                    } else {
+                        return path
+                    }
                 }
-            }).when('/register', {
-                templateUrl: 'partials/register.html',
-                controller: 'RegisterCtrl',
-                redirectTo: function (_, path, __) {
-                    return redirect(path)
-                }
+//            }).when('/login', {
+//                templateUrl: 'partials/login.html',
+//                controller: 'LoginCtrl',
+//                redirectTo: function (_, path, __) {
+//                    return redirect(path)
+//                }
+//            }).when('/register', {
+//                templateUrl: 'partials/register.html',
+//                controller: 'RegisterCtrl',
+//                redirectTo: function (_, path, __) {
+//                    return redirect(path)
+//                }
             }).when('/center/:username', {
                 templateUrl: 'partials/center.html',
                 controller: 'CenterCtrl',
@@ -41,7 +49,7 @@ angular.module('iBoard', [
                     if (AV.User.current()) {
                         return path
                     } else {
-                        return '/login'
+                        return '/'
                     }
                 }
             }).otherwise({redirectTo: '/'});
