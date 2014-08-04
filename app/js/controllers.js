@@ -85,7 +85,6 @@ angular.module('iBoard.controllers', [])
         $scope.tabSwitch = function (tabNo) {
             if ($scope.currentTab!=tabNo) {
                 $("#tabNav").children("li").toggleClass("active");
-                $(".login-container,.signup-container").toggleClass("hidden");
                 $scope.currentTab=tabNo;
             }
         }
