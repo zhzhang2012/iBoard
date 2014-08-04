@@ -7,19 +7,19 @@
     </div>
     <!--Login/Signup-->
     <div class="col-md-4 col-lg-4">
-            <ul class="nav nav-tabs" role="tablist" id="tabNav">
-                <li class="active"ng-click="tabSwitch(1)"><a href="">注册</a></li>
-                <li ng-click="tabSwitch(2)"><a href="">登录</a></li>
-            </ul>
-            <!--Signup-->
-                <div class="signup-container page-box-white" id="Signup" ng-show="currentTab==1">
-                <div class="alert alert-success" role="alert"><strong>已经注册过了？</strong> 点击上方的“登录”按钮，回到属于自己的那片天地！</div>
-                <form class="form" name="form" ng-submit="register(form)" novalidate>
-                    <div class="form-group">
+        <ul class="nav nav-tabs" role="tablist" id="tabNav">
+            <li class="active" ng-click="tabSwitch(1)"><a href="">注册</a></li>
+            <li ng-click="tabSwitch(2)"><a href="">登录</a></li>
+        </ul>
+        <!--Signup-->
+        <div class="signup-container page-box-white" id="Signup" ng-show="currentTab==1">
+            <div class="alert alert-success" role="alert"><strong>已经注册过了？</strong> 点击上方的“登录”按钮，回到属于自己的那片天地！</div>
+            <form class="form" name="form" ng-submit="register(form)" novalidate>
+                <div class="form-group">
                     <input type="text" name="email" class="form-control" ng-model="user.email"
-                    placeholder="请输入邮箱" 
-                    required 
-                    ng-unique="user.email"/>
+                           placeholder="请输入邮箱"
+                           required
+                           ng-unique="user.email"/>
                         <span ng-show="form.email.$error.required && submitted">
                           请输入邮箱
                         </span>
@@ -29,16 +29,16 @@
                         <span ng-show="form.email.$error.unique && submitted">
                           此邮箱已被注册
                         </span>
-                    </div>
-                    <div class="form-group">
+                </div>
+                <div class="form-group">
                     <input type="text" name="username" class="form-control" ng-model="user.username"
-                       placeholder="请输入用户名"
-                       required
-                       ng-username="user.username"
-                       ng-minlength="6"
-                       ng-maxlength="18"
-                       ng-unique="user.username"
-                        />
+                           placeholder="请输入用户名"
+                           required
+                           ng-username="user.username"
+                           ng-minlength="6"
+                           ng-maxlength="18"
+                           ng-unique="user.username"
+                            />
                         <span class="error-msg" ng-show="form.username.$error.required && submitted">
                           请输入用户名
                         </span>
@@ -51,16 +51,16 @@
                         <span class="error-msg" ng-show="form.username.$error.unique && submitted">
                           很遗憾，此用户名已经被注册
                         </span>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" name="password" class="form-control" ng-model="user.password"
-                       placeholder="密码"
-                       required
-                       ng-minlength="6"
-                       ng-maxlength="12"
-                        />
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-control" ng-model="user.password"
+                           placeholder="密码"
+                           required
+                           ng-minlength="6"
+                           ng-maxlength="12"
+                            />
                         <span class="error-msg"
-                            ng-show="form.password.$error.required && submitted">
+                              ng-show="form.password.$error.required && submitted">
                           请输入密码
                         </span>
                         <span class="error-msg" ng-show="form.password.$error.minlength && submitted">
@@ -69,48 +69,50 @@
                         <span class="error-msg" ng-show="form.password.$error.maxlength && submitted">
                           密码由6-12位字母、数字或符号组成，区分大小写
                         </span>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" name="conpwd" class="form-control" ng-model="user.conpwd"
-                       placeholder="再输一次密码吧~"
-                       required
-                       ng-confirm/>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="conpwd" class="form-control" ng-model="user.conpwd"
+                           placeholder="再输一次密码吧~"
+                           required
+                           ng-confirm/>
                         <span class="error-msg" ng-show="form.conpwd.$error.required && submitted">
                           密码不一致
                         </span>
                         <span class="error-msg"
-                            ng-show="form.conpwd.$error.confirm && submitted">
+                              ng-show="form.conpwd.$error.confirm && submitted">
                           密码不一致
                         </span>
-                    </div>
+                </div>
                 <!--<label>-->
                 <!--<input type="checkbox" checked="checked"> 我已阅读并同意<a href="#">《洋葱数学服务条款》</a>-->
                 <!--</label>-->
                 <button type="submit" class="btn btn-success btn-block">注册</button>
-                </form>
+            </form>
+        </div>
+        <!--Login-->
+        <div class="login-container page-box-white" id="Login" ng-show="currentTab==2">
+            <div class="alert alert-success" role="alert"><strong>还没有注册过？</strong> 点击上方的“注册”按钮，抓紧时间注册一个属于自己的账户吧！</div>
+            <form class="form" name="form" ng-submit="login(form)" novalidate>
+                <div class="form-group">
+                    <span class="fui-user"></span>
+                    <input type="text" name="username" class="form-control" ng-model="user.username"
+                           placeholder="请输入用户名"
+                           required>
+                    <span class="error-msg" ng-show="form.username.$error.required && submitted">用户名不能为空</span>
                 </div>
-            <!--Login-->
-                <div class="login-container page-box-white" id="Login" ng-show="currentTab==2">
-                    <div class="alert alert-success" role="alert"><strong>还没有注册过？</strong> 点击上方的“注册”按钮，抓紧时间注册一个属于自己的账户吧！</div>
-                    <form class="form" name="form" ng-submit="login(form)" novalidate>
-                        <div class="form-group">
-                            <span class="fui-user"></span>
-                            <input type="text" name="username" class="form-control" ng-model="user.username" placeholder="请输入用户名"
-                       required>
-                            <span class="error-msg" ng-show="form.username.$error.required && submitted">用户名不能为空</span>
-                        </div>
-                        <div class="form-group">
-                            <span class="fui-lock"></span>
-                            <input type="password" name="password" class="form-control" ng-model="user.password" placeholder="密码" required>
-                <!--<span class="error-msg">用户名或密码错误</span>-->
-                            <span class="error-msg" ng-show="form.password.$error.required && submitted">密码不能为空</span>
-                        </div>
-                        <div class="form-group has-error">
-                            <p class="error-msg">{{ errors.other }}</p>
-                        </div>
-                    <button type="submit" class="btn btn-success btn-block">登录</button>
-                    </form>
+                <div class="form-group">
+                    <span class="fui-lock"></span>
+                    <input type="password" name="password" class="form-control" ng-model="user.password"
+                           placeholder="密码" required>
+                    <!--<span class="error-msg">用户名或密码错误</span>-->
+                    <span class="error-msg" ng-show="form.password.$error.required && submitted">密码不能为空</span>
                 </div>
+                <div class="form-group has-error">
+                    <p class="error-msg">{{ errors.other }}</p>
+                </div>
+                <button type="submit" class="btn btn-success btn-block">登录</button>
+            </form>
+        </div>
     </div>
 
     <div id="carousel-example-generic" class="col-md-8 col-lg-8 carousel slide" data-ride="carousel">
@@ -162,14 +164,14 @@
                         <h4 class="modal-title" id="suggestIdeaLabel">提供你的建议吧</h4>
                     </div>
                     <div class="modal-body">
-                        <select class="form-control" ng-model="suggest.category"
-                                ng-options="option.name for option in suggestOptions">
+                        <select class="form-control" ng-model="suggestData.category"
+                                ng-options="option.value as option.name for option in suggestOptions">
                         </select>
 
-                        <div ng-show="suggest.category == 'done'">
+                        <div ng-show="suggestData.category == 'done'">
                             <hr>
                             <textarea class="form-control" rows="3"
-                                      ng-model="suggest.source"
+                                      ng-model="suggestData.source"
                                       placeholder="请填写你的出处（url、名称、描述等）"></textarea>
                         </div>
                     </div>
@@ -184,5 +186,5 @@
             </div>
         </div>
     </div>
-    
+
 </div>

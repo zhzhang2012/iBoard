@@ -49,14 +49,14 @@ angular.module('iBoard.controllers', [])
             $scope.$apply(function () {
                 $scope.errors = err.message;
             })
-        })
+        });
 
         $scope.go = function (dest) {
             $('.carousel').carousel(dest);
         };
 
         $scope.isSelf = function (publisherId) {
-            return publisherId == AV.User.current().id;
+            return AV.User.current() && publisherId == AV.User.current().id;
         };
 
         $scope.like = function (idea) {
@@ -67,11 +67,12 @@ angular.module('iBoard.controllers', [])
 
         $scope.setSuggestTargetIdea = function (ideaId) {
             $scope.suggestTargetIdea = ideaId;
-        }
+        };
         $scope.suggest = function () {
             $scope.suggestData.ideaId = $scope.suggestTargetIdea;
-            Suggest.create($scope.suggestData, function () {
-                $scope.$apply(function (_suggest) {
+            console.log($scope.suggestData);
+            Suggest.create($scope.suggestData, function (_suggest) {
+                $scope.$apply(function () {
                     $scope.suggestData = $scope.suggestTargetIdea = {};
                     $("#suggestIdea").modal('hide');
                 })
@@ -83,9 +84,9 @@ angular.module('iBoard.controllers', [])
         }
         $scope.currentTab = 1;
         $scope.tabSwitch = function (tabNo) {
-            if ($scope.currentTab!=tabNo) {
+            if ($scope.currentTab != tabNo) {
                 $("#tabNav").children("li").toggleClass("active");
-                $scope.currentTab=tabNo;
+                $scope.currentTab = tabNo;
             }
         }
     }])

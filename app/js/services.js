@@ -270,7 +270,7 @@ angular.module('iBoard.services', [])
                 suggest.save({
                     idea: relatedIdea,
                     advisor: user,
-                    category: data.category.value,
+                    category: data.category,
                     source: typeof(data.source) == "undefined" ? "" : data.source,
                     approved: false
                 }, function (_suggest) {
