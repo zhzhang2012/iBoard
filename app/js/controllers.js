@@ -81,7 +81,14 @@ angular.module('iBoard.controllers', [])
                 })
             })
         }
-
+        $scope.currentTab = 1;
+        $scope.tabSwitch = function (tabNo) {
+            if ($scope.currentTab!=tabNo) {
+                $("#tabNav").children("li").toggleClass("active");
+                $(".login-container,.signup-container").toggleClass("hidden");
+                $scope.currentTab=tabNo;
+            }
+        }
     }])
     .controller('LoginCtrl', ['$scope', '$location', 'User', function ($scope, $location, User) {
         $scope.login = function (form) {
