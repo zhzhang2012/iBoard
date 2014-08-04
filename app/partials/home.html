@@ -8,13 +8,13 @@
     <!--Login/Signup-->
     <div class="col-md-4 col-lg-4">
             <ul class="nav nav-tabs" role="tablist" id="tabNav">
-                <li class="active"ng-click="tabSwitch(1)"><a href="">Signup</a></li>
-                <li ng-click="tabSwitch(2)"><a href="">Login</a></li>
+                <li class="active"ng-click="tabSwitch(1)"><a href="">注册</a></li>
+                <li ng-click="tabSwitch(2)"><a href="">登录</a></li>
             </ul>
             <!--Signup-->
                 <div class="signup-container page-box-white" id="Signup" ng-show="currentTab==1">
                 <h4>注册</h4>
-                <div class="alert alert-success" role="alert"><strong>已经注册过了？</strong> 点击上方的“登录”按钮来登陆！</div>
+                <div class="alert alert-success" role="alert"><strong>已经注册过了？</strong> 点击上方的“登录”按钮，回到属于自己的那片天地！</div>
                 <form class="form" name="form" ng-submit="register(form)" novalidate>
                     <div class="form-group">
                     <input type="text" name="email" class="form-control" ng-model="user.email"
@@ -93,7 +93,7 @@
             <!--Login-->
                 <div class="login-container page-box-white" id="Login" ng-show="currentTab==2">
                     <h4>登录</h4>
-
+                    <div class="alert alert-success" role="alert"><strong>还没有注册过？</strong> 点击上方的“注册”按钮，抓紧时间注册一个属于自己的账户吧！</div>
                     <form class="form" name="form" ng-submit="login(form)" novalidate>
                         <div class="form-group">
                             <span class="fui-user"></span>
