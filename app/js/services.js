@@ -259,3 +259,32 @@ angular.module('iBoard.services', [])
         }
 
     }])
+
+    .factory('Suggest', [ 'ToolsProvider', function (ToolsProvider) {
+        var createSuggest = function (data, succCallback, errCallback) {
+            var Suggestion = AV.Object.extend("Suggestion");
+            var relatedIdea = AV.Object.createWithoutData('Idea', data.ideaId);
+            var suggest = new Suggestion();
+
+            ToolsProvider.checkUserStatus(function (user) {
+                suggest.save({
+                    idea: relatedIdea,
+                    advisor: user,
+                    category: data.category.value,
+                    source: typeof(data.source) == "undefined" ? "" : data.source,
+                    approved: false
+                }, function (_suggest) {
+                    succCallback(_suggest);
+                }, function (obj, err) {
+                    console.log("Error occurred when creating a suggestion");
+                    errCallback(err);
+                })
+            }, function (err) {
+                errCallback(err);
+            })
+        };
+
+        return {
+            create: createSuggest
+        }
+    }])

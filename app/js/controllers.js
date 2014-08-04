@@ -3,10 +3,17 @@
 /* Controllers */
 
 angular.module('iBoard.controllers', [])
-    .controller('HomeCtrl', ['$scope', 'Idea', 'User', function ($scope, Idea, User) {
+    .controller('HomeCtrl', ['$scope', 'Idea', 'User', 'Suggest', function ($scope, Idea, User, Suggest) {
         $scope.ideas = [];
         $scope.loginUser = AV.User.current();
         $scope.likesCount = [];
+
+        $scope.suggestOptions = [
+            {name: "已经被实现", value: "done"},
+            {name: "我正在实现", value: "doing"}
+        ];
+        $scope.suggestData = {};
+        $scope.suggestTargetIdea = "";
 
         Idea.getAllIdeas(function (_ideas) {
             $scope.$apply(function () {
@@ -58,6 +65,23 @@ angular.module('iBoard.controllers', [])
             })
         };
 
+        $scope.setSuggestTargetIdea = function (ideaId) {
+            $scope.suggestTargetIdea = ideaId;
+        }
+        $scope.suggest = function () {
+            $scope.suggestData.ideaId = $scope.suggestTargetIdea;
+            Suggest.create($scope.suggestData, function () {
+                $scope.$apply(function (_suggest) {
+                    $scope.suggestData = $scope.suggestTargetIdea = {};
+                    $("#suggestIdea").modal('hide');
+                })
+            }, function (err) {
+                $scope.$apply(function () {
+                    $scope.errors.other = err;
+                })
+            })
+        }
+
     }])
     .controller('LoginCtrl', ['$scope', '$location', 'User', function ($scope, $location, User) {
         $scope.login = function (form) {
@@ -78,7 +102,6 @@ angular.module('iBoard.controllers', [])
                         $scope.errors.other = err.description;
                     })
                 })
-
             }
         }
     }])

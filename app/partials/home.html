@@ -24,11 +24,14 @@
                     <h4>{{ idea.createdAt }}</h4>
                 </div>
 
-                <div class="carousel-caption pull-right">
+                <div class="carousel-caption pull-right" ng-show="loginUser">
                     <span class="glyphicon glyphicon-heart"
-                          ng-show="loginUser"
                           ng-disabled="isSelf(idea.attributes.publisher.id)"
                           ng-click="like(idea)"> Like ({{ likesCount[$index] }}likes)</span>
+                    <button class="btn btn-default" ng-click="setSuggestTargetIdea(idea.id)"
+                            ng-disabled="isSelf(idea.attributes.publisher.id)"
+                            data-toggle="modal" data-target="#suggestIdea"> Suggest
+                    </button>
                 </div>
             </div>
         </div>
@@ -40,5 +43,39 @@
         <a class="right carousel-control" ng-click="go('next')" role="button" data-slide="next">
             <span class="glyphicon glyphicon-chevron-right"></span>
         </a>
+
+        <!-- Modal -->
+        <div class="modal fade" id="suggestIdea" tabindex="-1" role="dialog" aria-labelledby="suggestIdeaLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span
+                                aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                        <h4 class="modal-title" id="suggestIdeaLabel">提供你的建议吧</h4>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-control" ng-model="suggest.category"
+                                ng-options="option.name for option in suggestOptions">
+                        </select>
+
+                        <div ng-show="suggest.category == 'done'">
+                            <hr>
+                            <textarea class="form-control" rows="3"
+                                      ng-model="suggest.source"
+                                      placeholder="请填写你的出处（url、名称、描述等）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group has-error">
+                        <p class="error-msg">{{ errors.other }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                        <button type="button" class="btn btn-primary" ng-click="suggest()">提 交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
