@@ -3,25 +3,61 @@
 /* Controllers */
 
 angular.module('iBoard.controllers', [])
-    .controller('HomeCtrl', ['$scope', 'Idea', function ($scope, Idea) {
+    .controller('HomeCtrl', ['$scope', 'Idea', 'User', function ($scope, Idea, User) {
         $scope.ideas = [];
+        $scope.loginUser = AV.User.current();
+        $scope.likesCount = [];
 
         Idea.getAllIdeas(function (_ideas) {
             $scope.$apply(function () {
                 $scope.ideas = _ideas;
+                angular.forEach(_ideas, function (idea, index) {
+                    $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
+                    User.findUserById($scope.ideas[index].attributes.publisher.id, function (user) {
+                        $scope.$apply(function () {
+                            $scope.ideas[index].publisher = user.attributes.username;
+                        })
+                    }, function (obj, err) {
+                        $scope.$apply(function () {
+                            $scope.errors = err.message;
+                        })
+                    });
+
+                    Idea.getAllLikedUsers(idea, function (users) {
+                        $scope.$apply(function () {
+                            $scope.likesCount[index] = users.length;
+                        })
+                    }, function (err) {
+                        $scope.$apply(function () {
+                            $scope.errors = err;
+                        });
+                    })
+                });
+
                 $('.carousel').carousel({
                     interval: 5000
                 })
             })
         }, function (_ideas, err) {
             $scope.$apply(function () {
-                $scope.errors = err.description;
+                $scope.errors = err.message;
             })
         })
 
         $scope.go = function (dest) {
             $('.carousel').carousel(dest);
-        }
+        };
+
+        $scope.isSelf = function (publisherId) {
+            return publisherId == AV.User.current().id;
+        };
+
+        $scope.like = function (idea) {
+            User.like(idea, function (err) {
+                $scope.errors = err.message;
+            })
+        };
+
     }])
     .controller('LoginCtrl', ['$scope', '$location', 'User', function ($scope, $location, User) {
         $scope.login = function (form) {
@@ -76,13 +112,17 @@ angular.module('iBoard.controllers', [])
             }
         };
     }])
-    .controller('CenterCtrl', ['$scope', 'Idea', function ($scope, Idea) {
+    .controller('CenterCtrl', ['$scope', 'Idea', 'User', function ($scope, Idea, User) {
         $scope.ideas = [];
+        $scope.likes = [];
+        $scope.errors = {}
 
         var loadIdeas = function () {
             Idea.getUserIdeas(function (_ideas) {
                 $scope.$apply(function () {
                     $scope.ideas = _ideas;
+                    for (var i = 0; i < $scope.ideas.length; i++)
+                        $scope.ideas[i].createdAt = new Date($scope.ideas[i].createdAt).toDateString();
                 })
             }, function (_ideas, err) {
                 console.log(err);
@@ -90,6 +130,16 @@ angular.module('iBoard.controllers', [])
             })
         };
         loadIdeas();
+
+        User.getAllLikedIdeas(function (_likes) {
+            $scope.$apply(function () {
+                $scope.likes = _likes;
+            })
+        }, function (likes, err) {
+            $scope.$apply(function () {
+                $scope.errors = err;
+            })
+        });
 
         $scope.delete = function (ideaId) {
             Idea.deleteIdea(ideaId, function (idea) {
@@ -100,8 +150,7 @@ angular.module('iBoard.controllers', [])
             })
         };
     }])
-    .
-    controller('NavbarCtrl', ['$scope', '$location', 'User', 'Idea', function ($scope, $location, User, Idea) {
+    .controller('NavbarCtrl', ['$scope', '$location', 'User', 'Idea', function ($scope, $location, User, Idea) {
         $scope.loginUser = AV.User.current();
         $scope.username = $scope.loginUser ? $scope.loginUser.attributes.username : null;
         $scope.idea = {};

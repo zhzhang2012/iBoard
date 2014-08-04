@@ -2,7 +2,7 @@
 
 <div class="container">
     <div class="col-lg-10 col-lg-offset-1 col-sm-10 col-sm-offset-1 page-box-white">
-        <h4>我的Idea</h4>
+        <h4>我的Ideas</h4>
 
         <div class="form-group has-error">
             <p class="error-msg">{{ errors }}</p>
@@ -26,6 +26,25 @@
                             ng-click="delete(idea.id)">删除
                     </button>
                 </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h4>我赞的Ideas</h4>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>内容</th>
+                <th>发布日期</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="like in likes">
+                <td>{{ $index + 1 }}</td>
+                <td>{{ like.attributes.content }}</td>
+                <td>{{ like.createdAt }}</td>
             </tr>
             </tbody>
         </table>

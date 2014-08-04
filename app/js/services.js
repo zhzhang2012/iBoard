@@ -2,12 +2,18 @@
 
 /* Services */
 
-
-// Demonstrate how to register services
-// In this case it is a simple value service.
 angular.module('iBoard.services', [])
-    .factory('User', function () {
-
+    .service('ToolsProvider', function () {
+        this.checkUserStatus = function (then, err) {
+            var currentUser = AV.User.current();
+            if (currentUser) {
+                then(currentUser);
+            } else {
+                err("Invalid request!");
+            }
+        };
+    })
+    .factory('User', [ 'ToolsProvider', function (ToolsProvider) {
         var register = function (data, succCallback, errCallback) {
             var user = new AV.User();
             user.set("username", data.username);
@@ -49,7 +55,7 @@ angular.module('iBoard.services', [])
 
         var resetPass = function (email, succCallback, errCallback) {
             AV.User.requestPasswordReset(email, {
-                success: function () {
+                success: function (user) {
                     succCallback(user);
                 },
                 error: function (error) {
@@ -57,29 +63,74 @@ angular.module('iBoard.services', [])
                     console.log("Error: " + error.code + " " + error.message);
                     errCallback(error);
                 }
-            });
+            })
+        };
+
+        var findUserById = function (userid, succCallback, errCallback) {
+            var query = new AV.Query(AV.User);
+            query.get(userid, {
+                success: function (user) {
+                    succCallback(user);
+                }, error: function (object, err) {
+                    console.log("Error finding user: " + err.message);
+                    errCallback(err);
+                }
+            }, function () {
+
+            })
+        };
+
+        /**
+         * Like an idea
+         * @param ideaId the idea that will be recorded
+         * @param errCallback Report the error to the calling agent
+         */
+        var likeIdea = function (ideaId, errCallback) {
+            ToolsProvider.checkUserStatus(function (user) {
+                var relation = user.relation('likes');
+                relation.add(ideaId);
+                user.save(null, {
+                    success: function (user) {
+                        console.log("Successfully liked a post!");
+                    }, error: function (user, err) {
+                        console.log("Error occurred suring like actio: " + err.massage);
+                        errCallback(err);
+                    }
+                })
+            }, function (err) {
+                errCallback(err);
+            })
+        };
+
+        var getAllLikedIdeas = function (succCallback, errCallback) {
+            ToolsProvider.checkUserStatus(function (user) {
+                var relation = user.relation('likes');
+                relation.query().find({
+                    success: function (likes) {
+                        succCallback(likes);
+                    }, error: function (likes, err) {
+                        console.log("Error loading likes");
+                        errCallback(err);
+                    }
+                })
+            }, function (err) {
+                errCallback(err);
+            })
         };
 
         return {
             register: register,
             login: login,
             logout: logout,
-            resetPass: resetPass
+            findUserById: findUserById,
+            resetPass: resetPass,
+            like: likeIdea,
+            getAllLikedIdeas: getAllLikedIdeas
         }
 
-    })
+    }])
 
-    .factory('Idea', function () {
-
-        function checkUserStatus(then, err) {
-            var currentUser = AV.User.current();
-            if (currentUser) {
-                then(currentUser);
-            } else {
-                err("Invalid request!");
-            }
-        }
-
+    .factory('Idea', [ 'ToolsProvider', function (ToolsProvider) {
         /**
          * Create a new idea
          * @param ideaData The content of the idea
@@ -90,7 +141,7 @@ angular.module('iBoard.services', [])
             var Idea = AV.Object.extend("Idea");
             var idea = new Idea();
 
-            checkUserStatus(function (user) {
+            ToolsProvider.checkUserStatus(function (user) {
                 idea.save({
                     publisher: user,
                     content: ideaData.content
@@ -118,7 +169,7 @@ angular.module('iBoard.services', [])
             var Idea = AV.Object.extend("Idea");
             var query = new AV.Query(Idea);
 
-            checkUserStatus(function (user) {
+            ToolsProvider.checkUserStatus(function (user) {
                 var queryPromise = query.get(objectId)
                 queryPromise.then(function (_idea) {
                     var deletePromise = _idea.destroy();
@@ -143,14 +194,15 @@ angular.module('iBoard.services', [])
         var getUserIdeas = function (succCallback, errCallback) {
             var Idea = AV.Object.extend("Idea");
             var query = new AV.Query(Idea);
+            query.descending('createdAt');
 
-            checkUserStatus(function (user) {
+            ToolsProvider.checkUserStatus(function (user) {
                 query.equalTo("publisher", user);
                 query.find({
                     success: function (_ideas) {
                         succCallback(_ideas);
                     }, error: function (_ideas, err) {
-                        console.log("Invalid User: " + err.description)
+                        console.log("Invalid User: " + err.message)
                         errCallback(err);
                     }
                 })
@@ -159,9 +211,16 @@ angular.module('iBoard.services', [])
             })
         };
 
+        /**
+         * Get all ideas in the database
+         * TODO: Select ideas based on likes and comments
+         * @param succCallback Do something with the ideas
+         * @param errCallback Report the error to the calling agent
+         */
         var getAllIdeas = function (succCallback, errCallback) {
             var Idea = AV.Object.extend("Idea");
             var query = new AV.Query(Idea);
+            query.descending('createdAt');
 
             query.find({
                 success: function (ideas) {
@@ -173,11 +232,30 @@ angular.module('iBoard.services', [])
             })
         };
 
+        /**
+         * Get all liked users related to a specific idea
+         * @param idea the idea for querying users
+         * @param succCallback Do something with the ideas
+         * @param errCallback Report the error to the calling agent
+         */
+        var getAllLikedUsers = function (idea, succCallback, errCallback) {
+            var query = AV.Relation.reverseQuery('_User', 'likes', idea);
+            query.find({
+                success: function (users) {
+                    succCallback(users);
+                }, error: function (users, err) {
+                    console.log("Error occurred during loading liked users");
+                    errCallback(err);
+                }
+            })
+        };
+
         return {
             createIdea: createIdea,
             deleteIdea: deleteIdea,
             getUserIdeas: getUserIdeas,
-            getAllIdeas: getAllIdeas
+            getAllIdeas: getAllIdeas,
+            getAllLikedUsers: getAllLikedUsers
         }
 
-    })
+    }])

@@ -20,7 +20,15 @@
 
                 <div class="carousel-caption" style="bottom:40%">
                     <h1>{{ idea.attributes.content }}</h1>
+                    <h4>{{ idea.publisher }}</h4>
                     <h4>{{ idea.createdAt }}</h4>
+                </div>
+
+                <div class="carousel-caption pull-right">
+                    <span class="glyphicon glyphicon-heart"
+                          ng-show="loginUser"
+                          ng-disabled="isSelf(idea.attributes.publisher.id)"
+                          ng-click="like(idea)"> Like ({{ likesCount[$index] }}likes)</span>
                 </div>
             </div>
         </div>
