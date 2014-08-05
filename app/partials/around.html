@@ -1,0 +1,74 @@
+<div ng-include="'partials/navbar.html'"></div>
+
+<div class="container">
+    <div class="col-lg-10 col-lg-offset-1 col-sm-10 col-sm-offset-1 page-box-white">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Idea</th>
+                <th>发布者</th>
+                <th>发布日期</th>
+                <th>Likes</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="idea in ideas">
+                <td>{{ $index + 1 }}</td>
+                <td>{{ idea.attributes.content }}</td>
+                <td>{{ idea.publisher }}</td>
+                <td>{{ idea.createdAt }}</td>
+                <td>{{ likesCount[$index] }}</td>
+                <td>
+                    <button class="btn btn-danger btn-block"
+                            ng-disabled="isSelf(idea.attributes.publisher.id)"
+                            ng-click="like(idea)">Like
+                    </button>
+                    <button class="btn btn-default btn-block"
+                            ng-click="setSuggestTargetIdea(idea.id)"
+                            ng-disabled="isSelf(idea.attributes.publisher.id)"
+                            data-toggle="modal" data-target="#suggestIdea">Suggest
+                    </button>
+                    <button class="btn btn-primary btn-block"
+                            ng-click="delete(idea.id)">Comment
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="suggestIdea" tabindex="-1" role="dialog" aria-labelledby="suggestIdeaLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span
+                        aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                <h4 class="modal-title" id="suggestIdeaLabel">提供你的建议吧</h4>
+            </div>
+            <div class="modal-body">
+                <select class="form-control" ng-model="suggestData.category"
+                        ng-options="option.value as option.name for option in suggestOptions">
+                </select>
+
+                <div ng-show="suggestData.category == 'done'">
+                    <hr>
+                    <textarea class="form-control" rows="3"
+                              ng-model="suggestData.source"
+                              placeholder="请填写你的出处（url、名称、描述等）"></textarea>
+                </div>
+            </div>
+            <div class="form-group has-error">
+                <p class="error-msg">{{ errors.other }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                <button type="button" class="btn btn-primary" ng-click="suggest()">提 交</button>
+            </div>
+        </div>
+    </div>
+</div>

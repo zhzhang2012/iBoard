@@ -10,13 +10,6 @@ angular.module('iBoard', [
         'iBoard.controllers'
     ]).
     config(['$routeProvider', function ($routeProvider) {
-//        var redirect = function (path) {
-//            if (AV.User.current()) {
-//                return '/'
-//            } else {
-//                return path
-//            }
-//        };
 
         $routeProvider
             .when('/', {
@@ -30,18 +23,9 @@ angular.module('iBoard', [
                         return path
                     }
                 }
-//            }).when('/login', {
-//                templateUrl: 'partials/login.html',
-//                controller: 'LoginCtrl',
-//                redirectTo: function (_, path, __) {
-//                    return redirect(path)
-//                }
-//            }).when('/register', {
-//                templateUrl: 'partials/register.html',
-//                controller: 'RegisterCtrl',
-//                redirectTo: function (_, path, __) {
-//                    return redirect(path)
-//                }
+            }).when('/around', {
+                templateUrl: 'partials/around.html',
+                controller: "AroundCtrl"
             }).when('/center/:username', {
                 templateUrl: 'partials/center.html',
                 controller: 'CenterCtrl',

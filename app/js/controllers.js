@@ -3,21 +3,13 @@
 /* Controllers */
 
 angular.module('iBoard.controllers', [])
-    .controller('HomeCtrl', ['$scope', '$location', 'Idea', 'User', 'Suggest', function ($scope, $location, Idea, User, Suggest) {
+    .controller('HomeCtrl', ['$scope', '$location', 'Idea', 'User', function ($scope, $location, Idea, User) {
         $scope.user = {};
         $scope.errors = {hasRegisterErr: false, registerErr: "",
             hasLoginErr: false, loginErr: ""};
         $scope.loginUser = AV.User.current();
 
         $scope.ideas = [];
-        $scope.likesCount = [];
-
-        $scope.suggestOptions = [
-            {name: "已经被实现", value: "done"},
-            {name: "我正在实现", value: "doing"}
-        ];
-        $scope.suggestData = {};
-        $scope.suggestTargetIdea = "";
 
         $scope.register = function (form) {
             $scope.submitted = true;
@@ -81,16 +73,6 @@ angular.module('iBoard.controllers', [])
                             $scope.errors = err.message;
                         })
                     });
-
-                    Idea.getAllLikedUsers(idea, function (users) {
-                        $scope.$apply(function () {
-                            $scope.likesCount[index] = users.length;
-                        })
-                    }, function (err) {
-                        $scope.$apply(function () {
-                            $scope.errors = err;
-                        });
-                    })
                 });
 
                 $('.carousel').carousel({
@@ -107,6 +89,59 @@ angular.module('iBoard.controllers', [])
             $('.carousel').carousel(dest);
         };
 
+        $scope.currentTab = 1;
+        $scope.tabSwitch = function (tabNo) {
+            if ($scope.currentTab != tabNo) {
+                $("#tabNav").children("li").toggleClass("active");
+                $scope.currentTab = tabNo;
+            }
+        }
+    }])
+
+    .controller('AroundCtrl', ['$scope', 'User', 'Idea', 'Suggest', function ($scope, User, Idea, Suggest) {
+        $scope.ideas = [];
+        $scope.likesCount = [];
+        $scope.errors = {};
+
+        $scope.suggestOptions = [
+            {name: "已经被实现", value: "done"},
+            {name: "我正在实现", value: "doing"}
+        ];
+        $scope.suggestData = {};
+        $scope.suggestTargetIdea = "";
+
+        Idea.getAllIdeas(function (_ideas) {
+            $scope.$apply(function () {
+                $scope.ideas = _ideas;
+                angular.forEach(_ideas, function (idea, index) {
+                    $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
+                    User.findUserById($scope.ideas[index].attributes.publisher.id, function (user) {
+                        $scope.$apply(function () {
+                            $scope.ideas[index].publisher = user.attributes.username;
+                        })
+                    }, function (obj, err) {
+                        $scope.$apply(function () {
+                            $scope.errors = err.message;
+                        })
+                    });
+
+                    Idea.getAllLikedUsers(idea, function (users) {
+                        $scope.$apply(function () {
+                            $scope.likesCount[index] = users.length;
+                        })
+                    }, function (err) {
+                        $scope.$apply(function () {
+                            $scope.errors = err;
+                        });
+                    })
+                });
+            })
+        }, function (_ideas, err) {
+            $scope.$apply(function () {
+                $scope.errors = err.message;
+            })
+        });
+
         $scope.isSelf = function (publisherId) {
             return AV.User.current() && publisherId == AV.User.current().id;
         };
@@ -122,7 +157,6 @@ angular.module('iBoard.controllers', [])
         };
         $scope.suggest = function () {
             $scope.suggestData.ideaId = $scope.suggestTargetIdea;
-            console.log($scope.suggestData);
             Suggest.create($scope.suggestData, function (_suggest) {
                 $scope.$apply(function () {
                     $scope.suggestData = $scope.suggestTargetIdea = {};
@@ -134,20 +168,9 @@ angular.module('iBoard.controllers', [])
                 })
             })
         }
-        $scope.currentTab = 1;
-        $scope.tabSwitch = function (tabNo) {
-            if ($scope.currentTab != tabNo) {
-                $("#tabNav").children("li").toggleClass("active");
-                $scope.currentTab = tabNo;
-            }
-        }
+
     }])
-//    .controller('LoginCtrl', ['$scope', '$location', 'User', function ($scope, $location, User) {
-//
-//    }])
-//    .controller('RegisterCtrl', ['$scope', '$location', 'User', function ($scope, $location, User) {
-//
-//    }])
+
     .controller('CenterCtrl', ['$scope', 'Idea', 'User', function ($scope, Idea, User) {
         $scope.ideas = [];
         $scope.likes = [];
@@ -206,16 +229,12 @@ angular.module('iBoard.controllers', [])
             }
         };
 
-        $scope.door = function (target) {
-            $location.path(target);
-        };
-
         $scope.isActive = function (route) {
             return route === $location.path();
         };
 
-        $scope.enterCenter = function () {
-            $location.path('/center/' + $scope.loginUser.attributes.username);
+        $scope.door = function (target) {
+            $location.path(target);
         };
 
         $scope.logout = function () {

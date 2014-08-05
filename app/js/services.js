@@ -13,6 +13,7 @@ angular.module('iBoard.services', [])
             }
         };
     })
+
     .factory('User', [ 'ToolsProvider', function (ToolsProvider) {
         var register = function (data, succCallback, errCallback) {
             var user = new AV.User();
@@ -239,8 +240,8 @@ angular.module('iBoard.services', [])
          * @param errCallback Report the error to the calling agent
          */
         var getAllLikedUsers = function (idea, succCallback, errCallback) {
-            var query = AV.Relation.reverseQuery('_User', 'likes', idea);
-            query.find({
+            var reverseQuery = AV.Relation.reverseQuery('_User', 'likes', idea);
+            reverseQuery.find({
                 success: function (users) {
                     succCallback(users);
                 }, error: function (users, err) {
@@ -288,3 +289,46 @@ angular.module('iBoard.services', [])
             create: createSuggest
         }
     }])
+
+    .factory('Comment', [ 'ToolsProvider', function (ToolsProvider) {
+        var createComment = function (data, succCallback, errCallback) {
+            var Comment = AV.Object.extend("Comment");
+            var relatedIdea = AV.Object.createWithoutData('Idea', data.ideaId);
+            var comment = new Comment();
+
+            ToolsProvider.checkUserStatus(function (user) {
+                comment.save({
+                    idea: relatedIdea,
+                    commenter: user,
+                    replyTo: data.replyTo,
+                    content: data.content
+                }, function (_comment) {
+                    succCallback(_comment);
+                }, function (obj, err) {
+                    console.log("Error occurred when commenting an idea");
+                    errCallback(err);
+                })
+            }, function (err) {
+                errCallback(err);
+            })
+        };
+
+        var getIdeaComments = function (ideaId, succCallback, errCallback) {
+            var Comment = AV.Object.extend("Comment");
+            var query = new AV.Query(Comment);
+
+            query.find({
+                success: function (_comments) {
+                    succCallback(_comments);
+                }, error: function (_comments, err) {
+                    console.log("Error fetching comments!");
+                    errCallback(err);
+                }
+            })
+        };
+
+        return {
+            create: createComment,
+            getIdeaComments: getIdeaComments
+        }
+    }]);
