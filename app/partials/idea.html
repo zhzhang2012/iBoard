@@ -1,0 +1,52 @@
+<div ng-include="'partials/navbar.html'"></div>
+
+<div class="container">
+
+    <p>
+
+    <h2>{{ idea.attributes.content }}</h2>
+    <h4>{{ idea.publisher }}</h4>
+    <h5>{{ idea.createdAt }}</h5>
+    <br>
+    <h4><span class="label label-info">Likes:&nbsp;{{ likesCount }}</span></h4>
+    </p>
+    <hr>
+    <p>
+
+    <h3>Comments</h3>
+    <textarea class="form form-control" rows="3"
+              ng-model="commentContent"
+              placeholder="写下你的想法吧~"></textarea><br>
+
+    <div class="alert alert-success" ng-show="created && createSuccess">您的评论已成功提交！</div>
+    <div class="alert alert-success" ng-show="created && createFailure">提交过程中发生错误！</div>
+    <button class="btn btn-primary"
+            ng-click="createComment()">提 交
+    </button>
+    </p>
+    <hr>
+    <div>
+        <table class="table">
+            <!--<thead>-->
+            <!--<tr>-->
+            <!--<th>内容</th>-->
+            <!--<th>发布日期</th>-->
+            <!--<th>操作</th>-->
+            <!--</tr>-->
+            <!--</thead>-->
+            <tbody>
+            <tr ng-repeat="comment in comments">
+                <td>{{ comment.attributes.content }}</td>
+                <td>{{ comment.createdAt }}</td>
+                <td>
+                    <button class="btn btn-info">Reply</button>
+                </td>
+                <td>
+                    <button class="btn btn-primary">顶</button>
+                    <button class="btn btn-danger">踩</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

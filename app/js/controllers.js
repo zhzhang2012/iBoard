@@ -3,13 +3,15 @@
 /* Controllers */
 
 angular.module('iBoard.controllers', [])
-    .controller('HomeCtrl', ['$scope', '$location', 'Idea', 'User', function ($scope, $location, Idea, User) {
+    .controller('HomeCtrl', ['$scope', '$location', '$q', 'Idea', 'User', function ($scope, $location, $q, Idea, User) {
         $scope.user = {};
         $scope.errors = {hasRegisterErr: false, registerErr: "",
             hasLoginErr: false, loginErr: ""};
         $scope.loginUser = AV.User.current();
 
         $scope.ideas = [];
+        var deferred = $q.defer();
+        var ideasResourcePromise = deferred.promise;
 
         $scope.register = function (form) {
             $scope.submitted = true;
@@ -26,7 +28,7 @@ angular.module('iBoard.controllers', [])
                 User.register(data, function (user) {
                     // Resolve digest Cycle
                     $scope.$apply(function () {
-                        $location.path('/center/' + user.attributes.username);
+                        $location.path('/center');
                     })
                 }, function (err) {
                     console.log('get error : ' + angular.toJson(err));
@@ -48,7 +50,7 @@ angular.module('iBoard.controllers', [])
                 }
                 User.login($scope.user, function (usr) {
                     $scope.$apply(function () {
-                        $location.path('/center/' + usr.attributes.username);
+                        $location.path('/center');
                     })
                 }, function (err) {
                     $scope.$apply(function () {
@@ -62,26 +64,31 @@ angular.module('iBoard.controllers', [])
         Idea.getAllIdeas(function (_ideas) {
             $scope.$apply(function () {
                 $scope.ideas = _ideas;
-                angular.forEach(_ideas, function (idea, index) {
-                    $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
-                    User.findUserById($scope.ideas[index].attributes.publisher.id, function (user) {
-                        $scope.$apply(function () {
-                            $scope.ideas[index].publisher = user.attributes.username;
-                        })
-                    }, function (obj, err) {
-                        $scope.$apply(function () {
-                            $scope.errors = err.message;
-                        })
-                    });
-                });
-
-                $('.carousel').carousel({
-                    interval: 5000
-                })
+                deferred.resolve();
             })
         }, function (_ideas, err) {
             $scope.$apply(function () {
                 $scope.errors = err.message;
+                deferred.reject();
+            })
+        });
+
+        ideasResourcePromise.then(function () {
+            angular.forEach(_ideas, function (idea, index) {
+                $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
+                User.findUserById($scope.ideas[index].attributes.publisher.id, function (user) {
+                    $scope.$apply(function () {
+                        $scope.ideas[index].publisher = user.attributes.username;
+                    })
+                }, function (obj, err) {
+                    $scope.$apply(function () {
+                        $scope.errors = err.message;
+                    })
+                });
+            });
+
+            $('.carousel').carousel({
+                interval: 5000
             })
         });
 
@@ -98,7 +105,7 @@ angular.module('iBoard.controllers', [])
         }
     }])
 
-    .controller('AroundCtrl', ['$scope', 'User', 'Idea', 'Suggest', function ($scope, User, Idea, Suggest) {
+    .controller('AroundCtrl', ['$scope', '$location', '$q', 'User', 'Idea', 'Suggest', function ($scope, $location, $q, User, Idea, Suggest) {
         $scope.ideas = [];
         $scope.likesCount = [];
         $scope.errors = {};
@@ -110,36 +117,44 @@ angular.module('iBoard.controllers', [])
         $scope.suggestData = {};
         $scope.suggestTargetIdea = "";
 
+        var deferred = $q.defer();
+        var ideasResourcePromise = deferred.promise;
+
         Idea.getAllIdeas(function (_ideas) {
             $scope.$apply(function () {
                 $scope.ideas = _ideas;
-                angular.forEach(_ideas, function (idea, index) {
-                    $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
-                    User.findUserById($scope.ideas[index].attributes.publisher.id, function (user) {
-                        $scope.$apply(function () {
-                            $scope.ideas[index].publisher = user.attributes.username;
-                        })
-                    }, function (obj, err) {
-                        $scope.$apply(function () {
-                            $scope.errors = err.message;
-                        })
-                    });
-
-                    Idea.getAllLikedUsers(idea, function (users) {
-                        $scope.$apply(function () {
-                            $scope.likesCount[index] = users.length;
-                        })
-                    }, function (err) {
-                        $scope.$apply(function () {
-                            $scope.errors = err;
-                        });
-                    })
-                });
+                deferred.resolve(_ideas);
             })
         }, function (_ideas, err) {
             $scope.$apply(function () {
                 $scope.errors = err.message;
+                deferred.reject();
             })
+        });
+
+        ideasResourcePromise.then(function (_ideas) {
+            angular.forEach(_ideas, function (idea, index) {
+                $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
+                User.findUserById($scope.ideas[index].attributes.publisher.id, function (user) {
+                    $scope.$apply(function () {
+                        $scope.ideas[index].publisher = user.attributes.username;
+                    })
+                }, function (obj, err) {
+                    $scope.$apply(function () {
+                        $scope.errors = err.message;
+                    })
+                });
+
+                Idea.getAllLikedUsers(idea, function (users) {
+                    $scope.$apply(function () {
+                        $scope.likesCount[index] = users.length;
+                    })
+                }, function (err) {
+                    $scope.$apply(function () {
+                        $scope.errors = err;
+                    });
+                })
+            });
         });
 
         $scope.isSelf = function (publisherId) {
@@ -167,14 +182,97 @@ angular.module('iBoard.controllers', [])
                     $scope.errors.other = err;
                 })
             })
+        };
+
+        $scope.enterIdea = function (ideaId) {
+            $location.path('idea/' + ideaId);
         }
+    }])
+
+    .controller('IdeaCtrl', ['$scope', '$routeParams', '$q', 'Idea', 'User', 'Comment', function ($scope, $routeParams, $q, Idea, User, Comment) {
+        $scope.idea = {};
+
+        var ideaId = $routeParams.ideaId;
+        var deferred = $q.defer();
+        var ideaResourcePromise = deferred.promise;
+        $scope.errors = {};
+
+        $scope.comments = {};
+        $scope.commentContent = "";
+        $scope.created = $scope.createSuccess = $scope.createFailure = false;
+        var data = {
+            ideaId: ideaId
+        };
+
+        Idea.getIdeaById(ideaId, function (_idea) {
+            $scope.$apply(function () {
+                $scope.idea = _idea;
+                deferred.resolve();
+            })
+        }, function (err) {
+            $scope.$apply(function () {
+                $scope.errors.ideaErr = err;
+                deferred.reject();
+            })
+        });
+
+        ideaResourcePromise.then(function () {
+            $scope.idea.createdAt = new Date($scope.idea.createdAt).toDateString();
+            User.findUserById($scope.idea.attributes.publisher.id, function (user) {
+                $scope.$apply(function () {
+                    $scope.idea.publisher = user.attributes.username;
+                })
+            }, function (obj, err) {
+                $scope.$apply(function () {
+                    $scope.errors.ideaErr = err.message;
+                })
+            });
+
+            Idea.getAllLikedUsers($scope.idea, function (users) {
+                $scope.$apply(function () {
+                    $scope.likesCount = users.length;
+                })
+            }, function (err) {
+                $scope.$apply(function () {
+                    $scope.errors = err;
+                });
+            })
+        });
+
+        var loadComments = function () {
+            Comment.getIdeaComments(ideaId, function (_comments) {
+                $scope.$apply(function () {
+                    $scope.comments = _comments;
+                })
+            }, function (err) {
+                $scope.$apply(function () {
+                    $scope.errors.commentErr = err;
+                })
+            });
+        };
+        loadComments();
+
+        $scope.createComment = function () {
+            data.content = $scope.commentContent;
+            data.replyTo = $scope.idea.publisher;
+            Comment.create(data, function (_comment) {
+                $scope.$apply(function () {
+                    $scope.created = $scope.createSuccess = true;
+                    loadComments();
+                })
+            }, function (err) {
+                $scope.$apply(function () {
+                    $scope.created = $scope.createFalure = true;
+                })
+            })
+        };
 
     }])
 
     .controller('CenterCtrl', ['$scope', 'Idea', 'User', function ($scope, Idea, User) {
         $scope.ideas = [];
         $scope.likes = [];
-        $scope.errors = {}
+        $scope.errors = {};
 
         var loadIdeas = function () {
             Idea.getUserIdeas(function (_ideas) {
@@ -209,6 +307,7 @@ angular.module('iBoard.controllers', [])
             })
         };
     }])
+
     .controller('NavbarCtrl', ['$scope', '$location', 'User', 'Idea', function ($scope, $location, User, Idea) {
         $scope.loginUser = AV.User.current();
         $scope.username = $scope.loginUser ? $scope.loginUser.attributes.username : null;

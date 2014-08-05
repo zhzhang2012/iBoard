@@ -17,8 +17,7 @@ angular.module('iBoard', [
                 controller: 'HomeCtrl',
                 redirectTo: function (_, path, __) {
                     if (AV.User.current()) {
-                        return '/center/' +
-                            AV.User.current().attributes.username
+                        return '/center'
                     } else {
                         return path
                     }
@@ -26,7 +25,10 @@ angular.module('iBoard', [
             }).when('/around', {
                 templateUrl: 'partials/around.html',
                 controller: "AroundCtrl"
-            }).when('/center/:username', {
+            }).when('/idea/:ideaId', {
+                templateUrl: "partials/idea.html",
+                controller: "IdeaCtrl"
+            }).when('/center', {
                 templateUrl: 'partials/center.html',
                 controller: 'CenterCtrl',
                 redirectTo: function (_, path, __) {

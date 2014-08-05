@@ -187,6 +187,20 @@ angular.module('iBoard.services', [])
             })
         };
 
+        var getIdeaById = function (ideaId, succCallback, errCallback) {
+            var Idea = AV.Object.extend("Idea");
+            var query = new AV.Query(Idea);
+
+            query.get(ideaId, {
+                success: function (_idea) {
+                    succCallback(_idea);
+                }, error: function (obj, err) {
+                    console.log("Error when fetching ideas");
+                    errCallback(err);
+                }
+            })
+        };
+
         /**
          * Get a collection of ideas given the user
          * @param succCallback Do something with the ideas
@@ -254,6 +268,7 @@ angular.module('iBoard.services', [])
         return {
             createIdea: createIdea,
             deleteIdea: deleteIdea,
+            getIdeaById: getIdeaById,
             getUserIdeas: getUserIdeas,
             getAllIdeas: getAllIdeas,
             getAllLikedUsers: getAllLikedUsers
@@ -274,12 +289,12 @@ angular.module('iBoard.services', [])
                     category: data.category,
                     source: typeof(data.source) == "undefined" ? "" : data.source,
                     approved: false
-                }, function (_suggest) {
+                }, {success: function (_suggest) {
                     succCallback(_suggest);
-                }, function (obj, err) {
+                }, error: function (obj, err) {
                     console.log("Error occurred when creating a suggestion");
                     errCallback(err);
-                })
+                }})
             }, function (err) {
                 errCallback(err);
             })
@@ -302,12 +317,12 @@ angular.module('iBoard.services', [])
                     commenter: user,
                     replyTo: data.replyTo,
                     content: data.content
-                }, function (_comment) {
+                }, {success: function (_comment) {
                     succCallback(_comment);
-                }, function (obj, err) {
+                }, error: function (obj, err) {
                     console.log("Error occurred when commenting an idea");
                     errCallback(err);
-                })
+                }})
             }, function (err) {
                 errCallback(err);
             })

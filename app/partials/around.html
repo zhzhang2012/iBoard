@@ -16,7 +16,7 @@
             <tbody>
             <tr ng-repeat="idea in ideas">
                 <td>{{ $index + 1 }}</td>
-                <td>{{ idea.attributes.content }}</td>
+                <td ng-click="enterIdea(idea.id)">{{ idea.attributes.content }}</td>
                 <td>{{ idea.publisher }}</td>
                 <td>{{ idea.createdAt }}</td>
                 <td>{{ likesCount[$index] }}</td>
@@ -29,9 +29,6 @@
                             ng-click="setSuggestTargetIdea(idea.id)"
                             ng-disabled="isSelf(idea.attributes.publisher.id)"
                             data-toggle="modal" data-target="#suggestIdea">Suggest
-                    </button>
-                    <button class="btn btn-primary btn-block"
-                            ng-click="delete(idea.id)">Comment
                     </button>
                 </td>
             </tr>
