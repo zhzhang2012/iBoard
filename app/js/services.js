@@ -187,9 +187,16 @@ angular.module('iBoard.services', [])
             })
         };
 
+        /**
+         * Find a specific idea given the idea id
+         * @param ideaId the query info
+         * @param succCallback Do something with the idea
+         * @param errCallback Report the error to the calling agent
+         */
         var getIdeaById = function (ideaId, succCallback, errCallback) {
             var Idea = AV.Object.extend("Idea");
             var query = new AV.Query(Idea);
+            query.include("publisher");
 
             query.get(ideaId, {
                 success: function (_idea) {
@@ -236,6 +243,7 @@ angular.module('iBoard.services', [])
             var Idea = AV.Object.extend("Idea");
             var query = new AV.Query(Idea);
             query.descending('createdAt');
+            query.include("publisher");
 
             query.find({
                 success: function (ideas) {
@@ -309,13 +317,14 @@ angular.module('iBoard.services', [])
         var createComment = function (data, succCallback, errCallback) {
             var Comment = AV.Object.extend("Comment");
             var relatedIdea = AV.Object.createWithoutData('Idea', data.ideaId);
+            var relatedUser = AV.Object.createWithoutData('_User', data.replyTo);
             var comment = new Comment();
 
             ToolsProvider.checkUserStatus(function (user) {
                 comment.save({
                     idea: relatedIdea,
                     commenter: user,
-                    replyTo: data.replyTo,
+                    replyTo: relatedUser,
                     content: data.content
                 }, {success: function (_comment) {
                     succCallback(_comment);
@@ -330,7 +339,15 @@ angular.module('iBoard.services', [])
 
         var getIdeaComments = function (ideaId, succCallback, errCallback) {
             var Comment = AV.Object.extend("Comment");
+            var Idea = AV.Object.extend("Idea");
+            var idea = new Idea();
+            idea.id = ideaId;
+
             var query = new AV.Query(Comment);
+            query.equalTo("idea", idea);
+            query.descending("createdAt");
+            query.include("commenter");
+            query.include("replyTo");
 
             query.find({
                 success: function (_comments) {

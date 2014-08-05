@@ -5,7 +5,7 @@
     <p>
 
     <h2>{{ idea.attributes.content }}</h2>
-    <h4>{{ idea.publisher }}</h4>
+    <h4>{{ idea.attributes.publisher.attributes.username }}</h4>
     <h5>{{ idea.createdAt }}</h5>
     <br>
     <h4><span class="label label-info">Likes:&nbsp;{{ likesCount }}</span></h4>
@@ -21,7 +21,7 @@
     <div class="alert alert-success" ng-show="created && createSuccess">您的评论已成功提交！</div>
     <div class="alert alert-success" ng-show="created && createFailure">提交过程中发生错误！</div>
     <button class="btn btn-primary"
-            ng-click="createComment()">提 交
+            ng-click="createComment(idea.attributes.publisher.id)">提 交
     </button>
     </p>
     <hr>
@@ -36,10 +36,15 @@
             <!--</thead>-->
             <tbody>
             <tr ng-repeat="comment in comments">
-                <td>{{ comment.attributes.content }}</td>
+                <td><strong>Reply To {{ comment.attributes.replyTo.attributes.username }}:</strong> {{
+                    comment.attributes.content }}
+                </td>
+                <td>{{ comment.attributes.commenter.attributes.username }}</td>
                 <td>{{ comment.createdAt }}</td>
                 <td>
-                    <button class="btn btn-info">Reply</button>
+                    <button class="btn btn-info"
+                            ng-click="createComment(comment.attributes.commenter.id)">Reply
+                    </button>
                 </td>
                 <td>
                     <button class="btn btn-primary">顶</button>

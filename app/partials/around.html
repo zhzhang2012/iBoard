@@ -17,7 +17,7 @@
             <tr ng-repeat="idea in ideas">
                 <td>{{ $index + 1 }}</td>
                 <td ng-click="enterIdea(idea.id)">{{ idea.attributes.content }}</td>
-                <td>{{ idea.publisher }}</td>
+                <td>{{ idea.attributes.publisher.attributes.username }}</td>
                 <td>{{ idea.createdAt }}</td>
                 <td>{{ likesCount[$index] }}</td>
                 <td>
