@@ -1,5 +1,29 @@
 <div ng-include="'partials/navbar.html'"></div>
-
+<!--Carousal Fading Effect CSS Code-->
+<style>
+/* Fade transition for carousel items */
+.carousel .item {
+    left: 0 !important;
+      -webkit-transition: opacity 1.0s !important; /*adjust timing here */
+         -moz-transition: opacity 1.0s !important;
+           -o-transition: opacity 1.0s !important;
+              transition: opacity 1.0s !important;
+}
+.carousel-control {
+    background-image: none !important; /* remove background gradients on controls */
+}
+/* Fade controls with items */
+.next.left,
+.prev.right {
+    opacity: 1 !important;
+    z-index: 1 !important;
+}
+.active.left,
+.active.right {
+    opacity: 0 !important;
+    z-index: 2 !important;
+}
+</style>
 <div class="container">
 
     <!--Login/Signup-->
