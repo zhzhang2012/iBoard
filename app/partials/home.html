@@ -2,9 +2,6 @@
 
 <div class="container">
 
-    <div class="form-group has-error">
-        <p class="error-msg">{{ errors }}</p>
-    </div>
     <!--Login/Signup-->
     <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
         <ul class="nav nav-tabs" role="tablist" id="tabNav">
@@ -15,6 +12,9 @@
         <div class="signup-container page-box-white" id="Signup" ng-show="currentTab==1">
             <br>
             <div class="alert alert-success" role="alert"><strong>已经注册过了？</strong> 点击上方的“登录”按钮，回到属于自己的那片天地！</div>
+            <div class="alert alert-danger" ng-show="errors.hasRegisterError">
+                <p>注册过程中出现错误：{{ errors.registerErr }}</p>
+            </div>
             <form class="form" name="form" ng-submit="register(form)" novalidate>
                 <div class="form-group">
                     <input type="text" name="email" class="form-control" ng-model="user.email"
@@ -84,9 +84,6 @@
                           密码不一致
                         </span>
                 </div>
-                <!--<label>-->
-                <!--<input type="checkbox" checked="checked"> 我已阅读并同意<a href="#">《洋葱数学服务条款》</a>-->
-                <!--</label>-->
                 <button type="submit" class="btn btn-success btn-block">注册</button>
             </form>
         </div>
@@ -94,6 +91,9 @@
         <div class="login-container page-box-white" id="Login" ng-show="currentTab==2">
             <br>
             <div class="alert alert-success" role="alert"><strong>还没有注册过？</strong> 点击上方的“注册”按钮，抓紧时间注册一个属于自己的账户吧！</div>
+            <div class="alert alert-danger" ng-show="errors.hasLoginError">
+                <p>登陆过程中出现错误：{{ errors.loginErr }}</p>
+            </div>
             <form class="form" name="form" ng-submit="login(form)" novalidate>
                 <div class="form-group">
                     <span class="fui-user"></span>
@@ -108,9 +108,6 @@
                            placeholder="密码" required>
                     <!--<span class="error-msg">用户名或密码错误</span>-->
                     <span class="error-msg" ng-show="form.password.$error.required && submitted">密码不能为空</span>
-                </div>
-                <div class="form-group has-error">
-                    <p class="error-msg">{{ errors.other }}</p>
                 </div>
                 <button type="submit" class="btn btn-success btn-block">登录</button>
             </form>
@@ -131,18 +128,8 @@
 
                 <div class="carousel-caption" style="bottom:40%">
                     <h1>{{ idea.attributes.content }}</h1>
-                    <h4>{{ idea.publisher }}</h4>
+                    <h4>{{ idea.attributes.publisher.attributes.username }}</h4>
                     <h4>{{ idea.createdAt }}</h4>
-                </div>
-
-                <div class="carousel-caption pull-right" ng-show="loginUser">
-                    <span class="glyphicon glyphicon-heart"
-                          ng-disabled="isSelf(idea.attributes.publisher.id)"
-                          ng-click="like(idea)"> Like ({{ likesCount[$index] }}likes)</span>
-                    <button class="btn btn-default" ng-click="setSuggestTargetIdea(idea.id)"
-                            ng-disabled="isSelf(idea.attributes.publisher.id)"
-                            data-toggle="modal" data-target="#suggestIdea"> Suggest
-                    </button>
                 </div>
             </div>
         </div>
@@ -154,39 +141,6 @@
         <a class="right carousel-control" ng-click="go('next')" role="button" data-slide="next">
             <span class="glyphicon glyphicon-chevron-right"></span>
         </a>
-
-        <!-- Modal -->
-        <div class="modal fade" id="suggestIdea" tabindex="-1" role="dialog" aria-labelledby="suggestIdeaLabel"
-             aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span
-                                aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
-                        <h4 class="modal-title" id="suggestIdeaLabel">提供你的建议吧</h4>
-                    </div>
-                    <div class="modal-body">
-                        <select class="form-control" ng-model="suggestData.category"
-                                ng-options="option.value as option.name for option in suggestOptions">
-                        </select>
-
-                        <div ng-show="suggestData.category == 'done'">
-                            <hr>
-                            <textarea class="form-control" rows="3"
-                                      ng-model="suggestData.source"
-                                      placeholder="请填写你的出处（url、名称、描述等）"></textarea>
-                        </div>
-                    </div>
-                    <div class="form-group has-error">
-                        <p class="error-msg">{{ errors.other }}</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
-                        <button type="button" class="btn btn-primary" ng-click="suggest()">提 交</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
 </div>

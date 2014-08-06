@@ -13,6 +13,7 @@ angular.module('iBoard.services', [])
             }
         };
     })
+
     .factory('User', [ 'ToolsProvider', function (ToolsProvider) {
         var register = function (data, succCallback, errCallback) {
             var user = new AV.User();
@@ -187,6 +188,27 @@ angular.module('iBoard.services', [])
         };
 
         /**
+         * Find a specific idea given the idea id
+         * @param ideaId the query info
+         * @param succCallback Do something with the idea
+         * @param errCallback Report the error to the calling agent
+         */
+        var getIdeaById = function (ideaId, succCallback, errCallback) {
+            var Idea = AV.Object.extend("Idea");
+            var query = new AV.Query(Idea);
+            query.include("publisher");
+
+            query.get(ideaId, {
+                success: function (_idea) {
+                    succCallback(_idea);
+                }, error: function (obj, err) {
+                    console.log("Error when fetching ideas");
+                    errCallback(err);
+                }
+            })
+        };
+
+        /**
          * Get a collection of ideas given the user
          * @param succCallback Do something with the ideas
          * @param errCallback Report the error to the calling agent
@@ -221,6 +243,7 @@ angular.module('iBoard.services', [])
             var Idea = AV.Object.extend("Idea");
             var query = new AV.Query(Idea);
             query.descending('createdAt');
+            query.include("publisher");
 
             query.find({
                 success: function (ideas) {
@@ -239,8 +262,8 @@ angular.module('iBoard.services', [])
          * @param errCallback Report the error to the calling agent
          */
         var getAllLikedUsers = function (idea, succCallback, errCallback) {
-            var query = AV.Relation.reverseQuery('_User', 'likes', idea);
-            query.find({
+            var reverseQuery = AV.Relation.reverseQuery('_User', 'likes', idea);
+            reverseQuery.find({
                 success: function (users) {
                     succCallback(users);
                 }, error: function (users, err) {
@@ -253,6 +276,7 @@ angular.module('iBoard.services', [])
         return {
             createIdea: createIdea,
             deleteIdea: deleteIdea,
+            getIdeaById: getIdeaById,
             getUserIdeas: getUserIdeas,
             getAllIdeas: getAllIdeas,
             getAllLikedUsers: getAllLikedUsers
@@ -273,12 +297,12 @@ angular.module('iBoard.services', [])
                     category: data.category,
                     source: typeof(data.source) == "undefined" ? "" : data.source,
                     approved: false
-                }, function (_suggest) {
+                }, {success: function (_suggest) {
                     succCallback(_suggest);
-                }, function (obj, err) {
+                }, error: function (obj, err) {
                     console.log("Error occurred when creating a suggestion");
                     errCallback(err);
-                })
+                }})
             }, function (err) {
                 errCallback(err);
             })
@@ -288,3 +312,55 @@ angular.module('iBoard.services', [])
             create: createSuggest
         }
     }])
+
+    .factory('Comment', [ 'ToolsProvider', function (ToolsProvider) {
+        var createComment = function (data, succCallback, errCallback) {
+            var Comment = AV.Object.extend("Comment");
+            var relatedIdea = AV.Object.createWithoutData('Idea', data.ideaId);
+            var relatedUser = AV.Object.createWithoutData('_User', data.replyTo);
+            var comment = new Comment();
+
+            ToolsProvider.checkUserStatus(function (user) {
+                comment.save({
+                    idea: relatedIdea,
+                    commenter: user,
+                    replyTo: relatedUser,
+                    content: data.content
+                }, {success: function (_comment) {
+                    succCallback(_comment);
+                }, error: function (obj, err) {
+                    console.log("Error occurred when commenting an idea");
+                    errCallback(err);
+                }})
+            }, function (err) {
+                errCallback(err);
+            })
+        };
+
+        var getIdeaComments = function (ideaId, succCallback, errCallback) {
+            var Comment = AV.Object.extend("Comment");
+            var Idea = AV.Object.extend("Idea");
+            var idea = new Idea();
+            idea.id = ideaId;
+
+            var query = new AV.Query(Comment);
+            query.equalTo("idea", idea);
+            query.descending("createdAt");
+            query.include("commenter");
+            query.include("replyTo");
+
+            query.find({
+                success: function (_comments) {
+                    succCallback(_comments);
+                }, error: function (_comments, err) {
+                    console.log("Error fetching comments!");
+                    errCallback(err);
+                }
+            })
+        };
+
+        return {
+            create: createComment,
+            getIdeaComments: getIdeaComments
+        }
+    }]);
