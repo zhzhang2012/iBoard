@@ -90,7 +90,14 @@ angular.module('iBoard.controllers', [])
                 $("#tabNav").children("li").toggleClass("active");
                 $scope.currentTab = tabNo;
             }
-        }
+        };
+
+        $scope.autoSlide = function () {
+            setInterval(function(){
+                $scope.go('next');
+            },3000);
+        };
+        $scope.autoSlide();
     }])
 
     .controller('AroundCtrl', ['$scope', '$location', '$q', 'User', 'Idea', 'Suggest', function ($scope, $location, $q, User, Idea, Suggest) {
