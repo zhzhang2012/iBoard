@@ -2,7 +2,6 @@
 
 <div class="container">
 
-    <p>
     <h2>{{ idea.attributes.content }}</h2>
     <h4>{{ idea.attributes.publisher.attributes.username }}</h4>
     <h5>{{ idea.createdAt }}</h5>
@@ -10,7 +9,6 @@
     <h4><span class="label label-info">Likes:&nbsp;{{ likesCount }}</span></h4>
     <div class="alert alert-success" ng-show="created && createSuccess">您的评论已成功提交！</div>
     <div class="alert alert-success" ng-show="created && createFailure">提交过程中发生错误！</div>
-    </p>
 
     <div>
         <table class="table">
@@ -41,7 +39,7 @@
             </tbody>
         </table>
 
-        <p>
+        <hr>
         <h3>Comments</h3>
         <textarea class="form form-control" rows="3"
                   ng-model="commentContent"
@@ -49,6 +47,5 @@
         <button class="btn btn-primary"
                 ng-click="createComment(replyToID)">提 交
         </button>
-        </p>
     </div>
 </div>

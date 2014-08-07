@@ -196,7 +196,7 @@ angular.module('iBoard.controllers', [])
                 deferred.resolve();
                 $scope.replyToID = $scope.idea.attributes.publisher.id;
                 $scope.replyTo = $scope.idea.attributes.publisher.attributes.username;
-                $("#makeComment").attr("placeholder", "写下你的想法，告诉"+ $scope.replyTo +"吧！");
+                $("#makeComment").attr("placeholder", "写下你的想法，告诉 "+ $scope.replyTo +" 吧！");
             })
         }, function (err) {
             $scope.$apply(function () {
