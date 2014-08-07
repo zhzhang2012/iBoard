@@ -19,11 +19,11 @@
                 <td ng-click="enterIdea(idea.id)">{{ idea.attributes.content }}</td>
                 <td>{{ idea.attributes.publisher.attributes.username }}</td>
                 <td>{{ idea.createdAt }}</td>
-                <td>{{ likesCount[$index] }}</td>
+                <td>{{ likes[$index].num }}</td>
                 <td>
                     <button class="btn btn-danger btn-block"
-                            ng-disabled="isSelf(idea.attributes.publisher.id)"
-                            ng-click="like(idea)">Like
+                            ng-disabled="isSelf(idea.attributes.publisher.id) || likes[$index].disabled"
+                            ng-click="like(idea, $index)">{{ likes[$index].label }}
                     </button>
                     <button class="btn btn-default btn-block"
                             ng-click="setSuggestTargetIdea(idea.id)"

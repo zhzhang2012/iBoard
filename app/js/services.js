@@ -4,6 +4,9 @@
 
 angular.module('iBoard.services', [])
     .service('ToolsProvider', function () {
+        /**
+         * User logged in authorization decorator
+         */
         this.checkUserStatus = function (then, err) {
             var currentUser = AV.User.current();
             if (currentUser) {
@@ -235,7 +238,7 @@ angular.module('iBoard.services', [])
 
         /**
          * Get all ideas in the database
-         * TODO: Select ideas based on likes and comments
+         * TODO Select ideas based on likes and comments
          * @param succCallback Do something with the ideas
          * @param errCallback Report the error to the calling agent
          */
@@ -308,8 +311,30 @@ angular.module('iBoard.services', [])
             })
         };
 
+        var getIdeaSuggests = function (ideaId, succCallback, errCallback) {
+            var Suggestion = AV.Object.extend("Suggestion");
+            var Idea = AV.Object.extend("Idea");
+            var idea = new Idea();
+            idea.id = ideaId;
+
+            var query = new AV.Query(Suggestion);
+            query.equalTo("idea", idea);
+            query.descending("createdAt");
+            query.include("advisor");
+
+            query.find({
+                success: function (_suggests) {
+                    succCallback(_suggests);
+                }, error: function (obj, err) {
+                    console.log("Error fetching suggests!");
+                    errCallback(err);
+                }
+            })
+        };
+
         return {
-            create: createSuggest
+            create: createSuggest,
+            getIdeaSuggests: getIdeaSuggests
         }
     }])
 
@@ -325,7 +350,9 @@ angular.module('iBoard.services', [])
                     idea: relatedIdea,
                     commenter: user,
                     replyTo: relatedUser,
-                    content: data.content
+                    content: data.content,
+                    like: 0,
+                    dislike: 0
                 }, {success: function (_comment) {
                     succCallback(_comment);
                 }, error: function (obj, err) {
@@ -359,8 +386,26 @@ angular.module('iBoard.services', [])
             })
         };
 
+        var likedislikeComment = function (commentId, column, succCallback, errCallback) {
+            var Comment = AV.Object.extend("Comment");
+            var query = new AV.Query(Comment);
+
+            query.get(commentId,function (comment) {
+                comment.increment(column);
+                return comment.save();
+            },function (obj, err) {
+                return AV.Promise.error(err);
+            }).then(function (comment) {
+                    succCallback(comment);
+                }, function (err) {
+                    console.log("Error occurred when like/dislike comments");
+                    errCallback(err);
+                })
+        };
+
         return {
             create: createComment,
-            getIdeaComments: getIdeaComments
+            getIdeaComments: getIdeaComments,
+            likedislikeComment: likedislikeComment
         }
     }]);

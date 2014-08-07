@@ -10,6 +10,22 @@
     <br>
     <h4><span class="label label-info">Likes:&nbsp;{{ likesCount }}</span></h4>
     </p>
+    <p>
+
+    <h3>Suggestions</h3>
+
+    <div>
+        <table class="table">
+            <tbody>
+            <tr ng-repeat="suggest in suggests">
+                <td>{{ suggest.attributes.category }}</td>
+                <td>{{ suggest.attributes.advisor.attributes.username }}</td>
+                <td>{{ suggest.attributes.source }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    </p>
     <hr>
     <p>
 
@@ -47,8 +63,12 @@
                     </button>
                 </td>
                 <td>
-                    <button class="btn btn-primary">顶</button>
-                    <button class="btn btn-danger">踩</button>
+                    <button class="btn btn-primary" ng-click="likeComment(comment.id, 'like')">
+                        顶({{ comment.attributes.like }})
+                    </button>
+                    <button class="btn btn-danger" ng-click="likeComment(comment.id, 'dislike')">
+                        踩({{ comment.attributes.dislike }})
+                    </button>
                 </td>
             </tr>
             </tbody>

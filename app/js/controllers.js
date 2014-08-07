@@ -5,6 +5,7 @@
 angular.module('iBoard.controllers', [])
     .controller('HomeCtrl', ['$scope', '$location', '$q', 'Idea', 'User', function ($scope, $location, $q, Idea, User) {
         $scope.user = {};
+        $scope.submitted = false;
         $scope.errors = {hasRegisterErr: false, registerErr: "",
             hasLoginErr: false, loginErr: ""};
         $scope.loginUser = AV.User.current();
@@ -64,6 +65,7 @@ angular.module('iBoard.controllers', [])
         Idea.getAllIdeas(function (_ideas) {
             $scope.$apply(function () {
                 $scope.ideas = _ideas;
+                deferred.resolve(_ideas);
                 $('.carousel').carousel({
                     interval: 5000
                 })
@@ -71,10 +73,11 @@ angular.module('iBoard.controllers', [])
         }, function (_ideas, err) {
             $scope.$apply(function () {
                 $scope.errors = err.message;
+                deferred.reject();
             })
         });
 
-        ideasResourcePromise.then(function () {
+        ideasResourcePromise.then(function (_ideas) {
             angular.forEach(_ideas, function (idea, index) {
                 $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
             });
@@ -95,12 +98,12 @@ angular.module('iBoard.controllers', [])
 
     .controller('AroundCtrl', ['$scope', '$location', '$q', 'User', 'Idea', 'Suggest', function ($scope, $location, $q, User, Idea, Suggest) {
         $scope.ideas = [];
-        $scope.likesCount = [];
+        $scope.likes = [];
         $scope.errors = {};
 
         $scope.suggestOptions = [
-            {name: "已经被实现", value: "done"},
-            {name: "我正在实现", value: "doing"}
+            {name: "已经被实现", value: "已实现"},
+            {name: "我正在实现", value: "实现中"}
         ];
         $scope.suggestData = {};
         $scope.suggestTargetIdea = "";
@@ -120,13 +123,30 @@ angular.module('iBoard.controllers', [])
             })
         });
 
+        $scope.isSelf = function (publisherId) {
+            return AV.User.current() && publisherId == AV.User.current().id;
+        };
+        var disableLikeButton = function (likedUsers) {
+            if (!AV.User.current())
+                return false;
+            for (var i = 0; i < likedUsers.length; i++) {
+                if (likedUsers[i].id == AV.User.current().id)
+                    return true;
+            }
+            return false;
+        };
         ideasResourcePromise.then(function (_ideas) {
             angular.forEach(_ideas, function (idea, index) {
                 $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
 
                 Idea.getAllLikedUsers(idea, function (users) {
                     $scope.$apply(function () {
-                        $scope.likesCount[index] = users.length;
+                        var disabled = disableLikeButton(users);
+                        $scope.likes[index] = {
+                            num: users.length,
+                            disabled: disabled,
+                            label: disabled ? "Liked" : "Like"
+                        }
                     })
                 }, function (err) {
                     $scope.$apply(function () {
@@ -136,11 +156,10 @@ angular.module('iBoard.controllers', [])
             });
         });
 
-        $scope.isSelf = function (publisherId) {
-            return AV.User.current() && publisherId == AV.User.current().id;
-        };
-
-        $scope.like = function (idea) {
+        $scope.like = function (idea, ideaIndex) {
+            $scope.likes[ideaIndex].num++;
+            $scope.likes[ideaIndex].disabled = true;
+            $scope.likes[ideaIndex].label = 'Liked';
             User.like(idea, function (err) {
                 $scope.errors = err.message;
             })
@@ -166,9 +185,11 @@ angular.module('iBoard.controllers', [])
         $scope.enterIdea = function (ideaId) {
             $location.path('idea/' + ideaId);
         }
-    }])
+    }
+    ])
 
-    .controller('IdeaCtrl', ['$scope', '$routeParams', '$q', 'Idea', 'User', 'Comment', function ($scope, $routeParams, $q, Idea, User, Comment) {
+    .
+    controller('IdeaCtrl', ['$scope', '$routeParams', '$q', 'Idea', 'User', 'Suggest', 'Comment', function ($scope, $routeParams, $q, Idea, User, Suggest, Comment) {
         $scope.idea = {};
 
         var ideaId = $routeParams.ideaId;
@@ -176,7 +197,9 @@ angular.module('iBoard.controllers', [])
         var ideaResourcePromise = deferred.promise;
         $scope.errors = {};
 
-        $scope.comments = {};
+        $scope.suggests = [];
+
+        $scope.comments = [];
         $scope.commentContent = "";
         $scope.created = $scope.createSuccess = $scope.createFailure = false;
         var data = {
@@ -209,10 +232,19 @@ angular.module('iBoard.controllers', [])
             })
         });
 
+        Suggest.getIdeaSuggests(ideaId, function (_suggests) {
+            $scope.$apply(function () {
+                $scope.suggests = _suggests;
+            })
+        }, function (err) {
+            $scope.$apply(function () {
+                $scope.errors = err;
+            })
+        });
+
         var loadComments = function () {
             Comment.getIdeaComments(ideaId, function (_comments) {
                 $scope.$apply(function () {
-                    console.log(_comments);
                     $scope.comments = _comments;
                 })
             }, function (err) {
@@ -238,9 +270,19 @@ angular.module('iBoard.controllers', [])
             })
         };
 
+        $scope.likeComment = function (commentId, type) {
+            Comment.likedislikeComment(commentId, type, function () {
+                //TODO reload the number of likes
+            }, function (err) {
+                $scope.$apply(function () {
+                    $scope.errors.commentErr = err;
+                })
+            })
+        }
+
     }])
 
-    .controller('CenterCtrl', ['$scope', 'Idea', 'User', function ($scope, Idea, User) {
+    .controller('CenterCtrl', ['$scope', '$location', 'Idea', 'User', function ($scope, $location, Idea, User) {
         $scope.ideas = [];
         $scope.likes = [];
         $scope.errors = {};
@@ -277,6 +319,10 @@ angular.module('iBoard.controllers', [])
                 $scope.errors = err;
             })
         };
+
+        $scope.enterIdea = function (ideaId) {
+            $location.path('/idea/' + ideaId);
+        }
     }])
 
     .controller('NavbarCtrl', ['$scope', '$location', 'User', 'Idea', function ($scope, $location, User, Idea) {
