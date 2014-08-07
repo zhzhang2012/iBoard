@@ -93,7 +93,14 @@ angular.module('iBoard.controllers', [])
                 $("#tabNav").children("li").toggleClass("active");
                 $scope.currentTab = tabNo;
             }
-        }
+        };
+
+        $scope.autoSlide = function () {
+            setInterval(function(){
+                $scope.go('next');
+            },3000);
+        };
+        $scope.autoSlide();
     }])
 
     .controller('AroundCtrl', ['$scope', '$location', '$q', 'User', 'Idea', 'Suggest', function ($scope, $location, $q, User, Idea, Suggest) {
@@ -185,11 +192,9 @@ angular.module('iBoard.controllers', [])
         $scope.enterIdea = function (ideaId) {
             $location.path('idea/' + ideaId);
         }
-    }
-    ])
+    }])
 
-    .
-    controller('IdeaCtrl', ['$scope', '$routeParams', '$q', 'Idea', 'User', 'Suggest', 'Comment', function ($scope, $routeParams, $q, Idea, User, Suggest, Comment) {
+    .controller('IdeaCtrl', ['$scope', '$routeParams', '$q', 'Idea', 'User', 'Suggest', 'Comment', function ($scope, $routeParams, $q, Idea, User, Suggest, Comment) {
         $scope.idea = {};
 
         var ideaId = $routeParams.ideaId;
@@ -210,6 +215,9 @@ angular.module('iBoard.controllers', [])
             $scope.$apply(function () {
                 $scope.idea = _idea;
                 deferred.resolve();
+                $scope.replyToID = $scope.idea.attributes.publisher.id;
+                $scope.replyTo = $scope.idea.attributes.publisher.attributes.username;
+                $("#makeComment").attr("placeholder", "写下你的想法，告诉"+ $scope.replyTo +"吧！");
             })
         }, function (err) {
             $scope.$apply(function () {
@@ -278,8 +286,14 @@ angular.module('iBoard.controllers', [])
                     $scope.errors.commentErr = err;
                 })
             })
-        }
+        };
 
+        $scope.changeReplyToID = function(newReplyToID, newReplyTo){
+            $scope.replyToID = newReplyToID;
+            $scope.replyTo = newReplyTo;
+            $("#makeComment").attr("placeholder", "写下你的想法，告诉"+ $scope.replyTo +"吧！");
+            $("#makeComment").focus();
+        };
     }])
 
     .controller('CenterCtrl', ['$scope', '$location', 'Idea', 'User', function ($scope, $location, Idea, User) {

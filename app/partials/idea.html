@@ -3,7 +3,6 @@
 <div class="container">
 
     <p>
-
     <h2>{{ idea.attributes.content }}</h2>
     <h4>{{ idea.attributes.publisher.attributes.username }}</h4>
     <h5>{{ idea.createdAt }}</h5>
@@ -26,21 +25,6 @@
         </table>
     </div>
     </p>
-    <hr>
-    <p>
-
-    <h3>Comments</h3>
-    <textarea class="form form-control" rows="3"
-              ng-model="commentContent"
-              placeholder="写下你的想法吧~"></textarea><br>
-
-    <div class="alert alert-success" ng-show="created && createSuccess">您的评论已成功提交！</div>
-    <div class="alert alert-success" ng-show="created && createFailure">提交过程中发生错误！</div>
-    <button class="btn btn-primary"
-            ng-click="createComment(idea.attributes.publisher.id)">提 交
-    </button>
-    </p>
-    <hr>
     <div>
         <table class="table">
             <!--<thead>-->
@@ -59,7 +43,7 @@
                 <td>{{ comment.createdAt }}</td>
                 <td>
                     <button class="btn btn-info"
-                            ng-click="createComment(comment.attributes.commenter.id)">Reply
+                            ng-click="changeReplyToID(comment.attributes.commenter.id, comment.attributes.commenter.attributes.username)">Reply
                     </button>
                 </td>
                 <td>
@@ -73,5 +57,15 @@
             </tr>
             </tbody>
         </table>
+
+        <p>
+        <h3>Comments</h3>
+        <textarea class="form form-control" rows="3"
+                  ng-model="commentContent"
+                  placeholder="" id="makeComment"></textarea><br>
+        <button class="btn btn-primary"
+                ng-click="createComment(replyToID)">提 交
+        </button>
+        </p>
     </div>
 </div>

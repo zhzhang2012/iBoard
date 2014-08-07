@@ -1,15 +1,40 @@
 <div ng-include="'partials/navbar.html'"></div>
-
+<!--Carousal Fading Effect CSS Code-->
+<style>
+/* Fade transition for carousel items */
+.carousel .item {
+    left: 0 !important;
+      -webkit-transition: opacity 1.0s !important; /*adjust timing here */
+         -moz-transition: opacity 1.0s !important;
+           -o-transition: opacity 1.0s !important;
+              transition: opacity 1.0s !important;
+}
+.carousel-control {
+    background-image: none !important; /* remove background gradients on controls */
+}
+/* Fade controls with items */
+.next.left,
+.prev.right {
+    opacity: 1 !important;
+    z-index: 1 !important;
+}
+.active.left,
+.active.right {
+    opacity: 0 !important;
+    z-index: 2 !important;
+}
+</style>
 <div class="container">
 
     <!--Login/Signup-->
-    <div class="col-md-4 col-lg-4">
+    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
         <ul class="nav nav-tabs" role="tablist" id="tabNav">
             <li class="active" ng-click="tabSwitch(1)"><a href="">注册</a></li>
             <li ng-click="tabSwitch(2)"><a href="">登录</a></li>
         </ul>
         <!--Signup-->
         <div class="signup-container page-box-white" id="Signup" ng-show="currentTab==1">
+            <br>
             <div class="alert alert-success" role="alert"><strong>已经注册过了？</strong> 点击上方的“登录”按钮，回到属于自己的那片天地！</div>
             <div class="alert alert-danger" ng-show="errors.hasRegisterError">
                 <p>注册过程中出现错误：{{ errors.registerErr }}</p>
@@ -78,6 +103,7 @@
 
         <!--Login-->
         <div class="login-container page-box-white" id="Login" ng-show="currentTab==2">
+            <br>
             <div class="alert alert-success" role="alert"><strong>还没有注册过？</strong> 点击上方的“注册”按钮，抓紧时间注册一个属于自己的账户吧！</div>
             <div class="alert alert-danger" ng-show="errors.hasLoginError">
                 <p>登陆过程中出现错误：{{ errors.loginErr }}</p>
@@ -103,12 +129,12 @@
         </div>
     </div>
 
-    <div id="carousel-example-generic" class="col-md-8 col-lg-8 carousel slide" data-ride="carousel">
-        <!-- Indicators -->
+    <div id="carousel-example-generic" class="col-xs-8 col-sm-8 col-md-8 col-lg-8 carousel slide" data-ride="carousel">
+        <!-- Indicators 
         <ol class="carousel-indicators">
             <li data-target="#carousel-example-generic" ng-repeat="idea in ideas"
                 data-slide-to="{{ $index }}" ng-class="{active: $index == 0}"></li>
-        </ol>
+        </ol>-->
 
         <!-- Wrapper for slides -->
         <div class="carousel-inner">
@@ -123,13 +149,13 @@
             </div>
         </div>
 
-        <!-- Controls -->
+        <!-- Controls 
         <a class="left carousel-control" ng-click="go('prev')" role="button" data-slide="prev">
             <span class="glyphicon glyphicon-chevron-left"></span>
         </a>
         <a class="right carousel-control" ng-click="go('next')" role="button" data-slide="next">
             <span class="glyphicon glyphicon-chevron-right"></span>
-        </a>
+        </a>-->
     </div>
 
 </div>
