@@ -194,6 +194,9 @@ angular.module('iBoard.controllers', [])
             $scope.$apply(function () {
                 $scope.idea = _idea;
                 deferred.resolve();
+                $scope.replyToID = $scope.idea.attributes.publisher.id;
+                $scope.replyTo = $scope.idea.attributes.publisher.attributes.username;
+                $("#makeComment").attr("placeholder", "写下你的想法，告诉"+ $scope.replyTo +"吧！");
             })
         }, function (err) {
             $scope.$apply(function () {
@@ -245,6 +248,11 @@ angular.module('iBoard.controllers', [])
             })
         };
 
+        $scope.changeReplyToID = function(newReplyToID, newReplyTo){
+            $scope.replyToID = newReplyToID;
+            $scope.replyTo = newReplyTo;
+            $("#makeComment").attr("placeholder", "写下你的想法，告诉"+ $scope.replyTo +"吧！");
+        };
     }])
 
     .controller('CenterCtrl', ['$scope', 'Idea', 'User', function ($scope, Idea, User) {
