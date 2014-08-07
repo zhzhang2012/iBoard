@@ -252,6 +252,7 @@ angular.module('iBoard.controllers', [])
             $scope.replyToID = newReplyToID;
             $scope.replyTo = newReplyTo;
             $("#makeComment").attr("placeholder", "写下你的想法，告诉"+ $scope.replyTo +"吧！");
+            $("#makeComment").focus();
         };
     }])
 
