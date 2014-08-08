@@ -18,13 +18,39 @@
     <link rel="stylesheet" href="css/app.css"/>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
     <script src="../bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
+    <style>
+    /*Background Image Style*/
+    .front-bg {
+    position: fixed;
+    width: 200%;
+    height: 200%;
+    left: -50%;
+    background: #000;
+    z-index: -100;
+    }
+
+    .front-bg img {
+    margin: auto;
+    min-width: 50%;
+    min-height: 50%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -99;
+    }
+    </style>
 </head>
 <body>
 <!--[if lt IE 7]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
     your browser</a> to improve your experience.</p>
 <![endif]-->
-
+<!--Backgroung Image-->
+    <div class="front-bg">
+      <img class="front-image" src="img/background.jpg" alt="" style="display: block;">
+    </div>
+    
 <div ng-view></div>
 
 <!-- In production use:

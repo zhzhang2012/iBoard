@@ -1,16 +1,12 @@
 <div ng-include="'partials/navbar.html'"></div>
 
 <div class="container">
-
-    <p>
-
+    <div class="col-lg-10 col-lg-offset-1 col-sm-10 col-sm-offset-1 page-box-white" style="background-color:white;border-radius:8px;padding:15px;">
     <h2>{{ idea.attributes.content }}</h2>
     <h4>{{ idea.attributes.publisher.attributes.username }}</h4>
     <h5>{{ idea.createdAt }}</h5>
     <br>
     <h4><span class="label label-info">Likes:&nbsp;{{ likesCount }}</span></h4>
-    </p>
-    <p>
 
     <h3>Suggestions</h3>
 
@@ -63,6 +59,7 @@
             </tbody>
         </table>
 
+        <hr>
         <textarea class="form form-control" rows="3"
                   ng-model="commentContent"
                   placeholder="写下你的想法，告诉{{ replyTo }}吧！" id="makeComment"></textarea><br>
@@ -72,6 +69,6 @@
         <button class="btn btn-primary"
                 ng-click="createComment(replyToID)">提 交
         </button>
-        </p>
     </div>
+</div>
 </div>
