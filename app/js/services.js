@@ -135,6 +135,9 @@ angular.module('iBoard.services', [])
     }])
 
     .factory('Idea', [ 'ToolsProvider', function (ToolsProvider) {
+
+        var ideaResources = [];
+
         /**
          * Create a new idea
          * @param ideaData The content of the idea
@@ -237,25 +240,85 @@ angular.module('iBoard.services', [])
         };
 
         /**
-         * Get all ideas in the database
+         * Get featured ideas in the database
          * TODO Select ideas based on likes and comments
          * @param succCallback Do something with the ideas
          * @param errCallback Report the error to the calling agent
          */
-        var getAllIdeas = function (succCallback, errCallback) {
+        var loadAllIdeas = function (succCallback, errCallback) {
             var Idea = AV.Object.extend("Idea");
             var query = new AV.Query(Idea);
-            query.descending('createdAt');
             query.include("publisher");
 
-            query.find({
-                success: function (ideas) {
-                    succCallback(ideas);
-                }, error: function (_ideas, err) {
+            query.find().then(function (_ideas) {
+                ideaResources = _ideas;
+                var queryPromises = [];
+                angular.forEach(ideaResources, function (idea, index) {
+                    var reverseQuery = AV.Relation.reverseQuery('_User', 'likes', idea);
+                    var reverseQueryPromise = new AV.Promise();
+                    queryPromises.push(reverseQueryPromise);
+                    reverseQuery.count().then(function (num) {
+                        ideaResources[index].like = {
+                            num: num
+                        };
+                        reverseQueryPromise.resolve();
+                    }, function (err) {
+                        reverseQueryPromise.reject(err);
+                    });
+                });
+                return AV.Promise.when(queryPromises);
+            }).then(function () {
+                    succCallback(ideaResources);
+                }, function () {
                     console.log("Error during loading ideas");
                     errCallback(err);
-                }
-            })
+                })
+        };
+
+        //Memoization decorator
+        var checkIdeaResourcesStatus = function (succCallback, errCallback) {
+            if (ideaResources.length == 0) {
+                loadAllIdeas(function (_ideas) {
+                    succCallback(_ideas);
+                }, function (err) {
+                    errCallback(err);
+                })
+            } else {
+                succCallback(ideaResources);
+            }
+        };
+
+        //Sort Decorator
+        var sortIdeas = function (ideas, limit, comparator, callback) {
+            var sortedIdeas = _.sortBy(ideas, comparator);
+            callback(sortedIdeas.reverse().slice(0, limit));
+        };
+
+        var getFeaturedIdeas = function (type, limit, succCallback, errCallback) {
+            switch (type) {
+                case 0:
+                    checkIdeaResourcesStatus(function (_ideas) {
+                        var comparator = function (_idea) {
+                            return _idea.like.num;
+                        };
+                        sortIdeas(_ideas, limit, comparator, succCallback);
+                    }, function (err) {
+                        errCallback(err);
+                    });
+                    break;
+                case 1:
+                    checkIdeaResourcesStatus(function (_ideas) {
+                        var comparator = function (_idea) {
+                            return (new Date(_idea.createdAt)).getTime();
+                        };
+                        sortIdeas(_ideas, limit, comparator, succCallback);
+                    }, function (err) {
+                        errCallback(err);
+                    });
+                    break;
+                default :
+                    errCallback("Error sorting type!");
+            }
         };
 
         /**
@@ -281,13 +344,14 @@ angular.module('iBoard.services', [])
             deleteIdea: deleteIdea,
             getIdeaById: getIdeaById,
             getUserIdeas: getUserIdeas,
-            getAllIdeas: getAllIdeas,
+            getFeaturedIdeas: getFeaturedIdeas,
             getAllLikedUsers: getAllLikedUsers
         }
 
     }])
 
-    .factory('Suggest', [ 'ToolsProvider', function (ToolsProvider) {
+    .
+    factory('Suggest', [ 'ToolsProvider', function (ToolsProvider) {
         var createSuggest = function (data, succCallback, errCallback) {
             var Suggestion = AV.Object.extend("Suggestion");
             var relatedIdea = AV.Object.createWithoutData('Idea', data.ideaId);

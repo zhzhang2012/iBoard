@@ -1,7 +1,11 @@
 <div ng-include="'partials/navbar.html'"></div>
 
 <div class="container">
-    <div class="col-lg-10 col-lg-offset-1 col-sm-10 col-sm-offset-1 page-box-white">
+    <div class="col-lg-10 col-lg-offset-1 col-sm-10 col-sm-offset-1">
+        <ul class="nav nav-tabs" role="tablist" id="tabNav">
+            <li class="active" ng-click="loadIdeas(0)"><a href="">按人气</a></li>
+            <li ng-click="loadIdeas(1)"><a href="">按发布时间</a></li>
+        </ul>
         <table class="table table-striped">
             <thead>
             <tr>
@@ -16,14 +20,14 @@
             <tbody>
             <tr ng-repeat="idea in ideas">
                 <td>{{ $index + 1 }}</td>
-                <td ng-click="enterIdea(idea.id)">{{ idea.attributes.content }}</td>
+                <td style="cursor: pointer" ng-click="enterIdea(idea.id)">{{ idea.attributes.content }}</td>
                 <td>{{ idea.attributes.publisher.attributes.username }}</td>
                 <td>{{ idea.createdAt }}</td>
-                <td>{{ likes[$index].num }}</td>
+                <td>{{ idea.like.num }}</td>
                 <td>
                     <button class="btn btn-danger btn-block"
-                            ng-disabled="isSelf(idea.attributes.publisher.id) || likes[$index].disabled"
-                            ng-click="like(idea, $index)">{{ likes[$index].label }}
+                            ng-disabled="isSelf(idea.attributes.publisher.id) || idea.like.disabled"
+                            ng-click="like(idea, $index)">{{ idea.like.label }}
                     </button>
                     <button class="btn btn-default btn-block"
                             ng-click="setSuggestTargetIdea(idea.id)"

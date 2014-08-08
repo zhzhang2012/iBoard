@@ -3,6 +3,7 @@
 <div class="container">
 
     <p>
+
     <h2>{{ idea.attributes.content }}</h2>
     <h4>{{ idea.attributes.publisher.attributes.username }}</h4>
     <h5>{{ idea.createdAt }}</h5>
@@ -26,6 +27,9 @@
     </div>
     </p>
     <div>
+        <p>
+
+        <h3>Comments</h3>
         <table class="table">
             <!--<thead>-->
             <!--<tr>-->
@@ -43,14 +47,15 @@
                 <td>{{ comment.createdAt }}</td>
                 <td>
                     <button class="btn btn-info"
-                            ng-click="changeReplyToID(comment.attributes.commenter.id, comment.attributes.commenter.attributes.username)">Reply
+                            ng-click="changeReplyToID(comment.attributes.commenter.id, comment.attributes.commenter.attributes.username)">
+                        Reply
                     </button>
                 </td>
                 <td>
-                    <button class="btn btn-primary" ng-click="likeComment(comment.id, 'like')">
+                    <button class="btn btn-primary" ng-click="likeComment(comment.id, $index, 'like')">
                         顶({{ comment.attributes.like }})
                     </button>
-                    <button class="btn btn-danger" ng-click="likeComment(comment.id, 'dislike')">
+                    <button class="btn btn-danger" ng-click="likeComment(comment.id, $index, 'dislike')">
                         踩({{ comment.attributes.dislike }})
                     </button>
                 </td>
@@ -58,11 +63,12 @@
             </tbody>
         </table>
 
-        <p>
-        <h3>Comments</h3>
         <textarea class="form form-control" rows="3"
                   ng-model="commentContent"
-                  placeholder="" id="makeComment"></textarea><br>
+                  placeholder="写下你的想法，告诉{{ replyTo }}吧！" id="makeComment"></textarea><br>
+
+        <div class="alert alert-success" ng-show="created && createSuccess">评论发布成功！</div>
+        <div class="alert alert-danger" ng-show="created && createFailure">提交过程出现错误！</div>
         <button class="btn btn-primary"
                 ng-click="createComment(replyToID)">提 交
         </button>
