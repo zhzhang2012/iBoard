@@ -39,19 +39,20 @@
             <div class="alert alert-danger" ng-show="errors.hasRegisterError">
                 <p>注册过程中出现错误：{{ errors.registerErr }}</p>
             </div>
-            <form class="form" name="form" ng-submit="register(form)" novalidate>
+            <form class="form" name="register_form" ng-submit="register(register_form)" novalidate>
                 <div class="form-group">
                     <input type="text" name="email" class="form-control" ng-model="user.email"
                            placeholder="请输入邮箱"
                            required
+                           ng-email="user.email"
                            ng-unique="user.email"/>
-                        <span ng-show="form.email.$error.required && submitted">
+                        <span class="error-msg" ng-show="register_form.email.$error.required && submitted">
                           请输入邮箱
                         </span>
-                        <span ng-show="form.email.$error.ep && submitted">
+                        <span class="error-msg" ng-show="register_form.email.$error.ep && submitted">
                           请输入格式正确的邮箱
                         </span>
-                        <span ng-show="form.email.$error.unique && submitted">
+                        <span class="error-msg" ng-show="register_form.email.$error.unique && submitted">
                           此邮箱已被注册
                         </span>
                 </div>
@@ -59,21 +60,12 @@
                     <input type="text" name="username" class="form-control" ng-model="user.username"
                            placeholder="请输入用户名"
                            required
-                           ng-username="user.username"
-                           ng-minlength="6"
-                           ng-maxlength="18"
                            ng-unique="user.username"
                             />
-                        <span class="error-msg" ng-show="form.username.$error.required && submitted">
+                        <span class="error-msg" ng-show="register_form.username.$error.required && submitted">
                           请输入用户名
                         </span>
-                        <span class="error-msg" ng-show="form.username.$error.username && submitted">
-                          请输入字母、数字、下划线，需字母开头
-                        </span>
-                        <span class="error-msg" ng-show="form.username.$error.minlength && submitted">
-                          长度应为6~18个字符
-                        </span>
-                        <span class="error-msg" ng-show="form.username.$error.unique && submitted">
+                        <span class="error-msg" ng-show="register_form.username.$error.unique && submitted">
                           很遗憾，此用户名已经被注册
                         </span>
                 </div>
@@ -85,13 +77,10 @@
                            ng-maxlength="12"
                             />
                         <span class="error-msg"
-                              ng-show="form.password.$error.required && submitted">
+                              ng-show="register_form.password.$error.required && submitted">
                           请输入密码
                         </span>
-                        <span class="error-msg" ng-show="form.password.$error.minlength && submitted">
-                          密码由6-12位字母、数字或符号组成，区分大小写
-                        </span>
-                        <span class="error-msg" ng-show="form.password.$error.maxlength && submitted">
+                        <span class="error-msg" ng-show="register_form.password.$error.minlength && submitted">
                           密码由6-12位字母、数字或符号组成，区分大小写
                         </span>
                 </div>
@@ -100,17 +89,18 @@
                            placeholder="再输一次密码吧~"
                            required
                            ng-confirm/>
-                        <span class="error-msg" ng-show="form.conpwd.$error.required && submitted">
+                        <span class="error-msg" ng-show="register_form.conpwd.$error.required && submitted">
                           密码不一致
                         </span>
                         <span class="error-msg"
-                              ng-show="form.conpwd.$error.confirm && submitted">
+                              ng-show="register_form.conpwd.$error.confirm && submitted">
                           密码不一致
                         </span>
                 </div>
                 <button type="submit" class="btn btn-success btn-block">注册</button>
             </form>
         </div>
+
         <!--Login-->
         <div class="login-container page-box-white" id="Login" ng-show="currentTab==2">
             <br>
@@ -118,20 +108,21 @@
             <div class="alert alert-danger" ng-show="errors.hasLoginError">
                 <p>登陆过程中出现错误：{{ errors.loginErr }}</p>
             </div>
-            <form class="form" name="form" ng-submit="login(form)" novalidate>
+            <form class="form" name="login_form" ng-submit="login(login_form)" novalidate>
                 <div class="form-group">
                     <span class="fui-user"></span>
-                    <input type="text" name="username" class="form-control" ng-model="user.username"
+                    <input type="text" name="userinfo" class="form-control" ng-model="user.username"
                            placeholder="请输入用户名"
                            required>
-                    <span class="error-msg" ng-show="form.username.$error.required && submitted">用户名不能为空</span>
+                    <span class="error-msg" ng-show="login_form.userinfo.$error.required && submitted">用户名不能为空</span>
                 </div>
                 <div class="form-group">
                     <span class="fui-lock"></span>
-                    <input type="password" name="password" class="form-control" ng-model="user.password"
+                    <input type="password" name="login_password" class="form-control" ng-model="user.password"
                            placeholder="密码" required>
                     <!--<span class="error-msg">用户名或密码错误</span>-->
-                    <span class="error-msg" ng-show="form.password.$error.required && submitted">密码不能为空</span>
+                    <span class="error-msg"
+                          ng-show="login_form.login_password.$error.required && submitted">密码不能为空</span>
                 </div>
                 <button type="submit" class="btn btn-success btn-block">登录</button>
             </form>
@@ -147,7 +138,7 @@
 
         <!-- Wrapper for slides -->
         <div class="carousel-inner">
-            <div class="item" ng-class="{active: $index == 0}" ng-repeat="idea in ideas">
+            <div class="item" ng-class="{active: !$index}" ng-repeat="idea in ideas">
                 <img src="img/background.jpg">
 
                 <div class="carousel-caption" style="bottom:40%">

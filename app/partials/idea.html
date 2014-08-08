@@ -7,9 +7,22 @@
     <h5>{{ idea.createdAt }}</h5>
     <br>
     <h4><span class="label label-info">Likes:&nbsp;{{ likesCount }}</span></h4>
+
     <div class="alert alert-success" ng-show="created && createSuccess">您的评论已成功提交！</div>
     <div class="alert alert-success" ng-show="created && createFailure">提交过程中发生错误！</div>
 
+    <div>
+        <table class="table">
+            <tbody>
+            <tr ng-repeat="suggest in suggests">
+                <td>{{ suggest.attributes.category }}</td>
+                <td>{{ suggest.attributes.advisor.attributes.username }}</td>
+                <td>{{ suggest.attributes.source }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    </p>
     <div>
         <table class="table">
             <!--<thead>-->
@@ -32,8 +45,12 @@
                     </button>
                 </td>
                 <td>
-                    <button class="btn btn-primary">顶</button>
-                    <button class="btn btn-danger">踩</button>
+                    <button class="btn btn-primary" ng-click="likeComment(comment.id, 'like')">
+                        顶({{ comment.attributes.like }})
+                    </button>
+                    <button class="btn btn-danger" ng-click="likeComment(comment.id, 'dislike')">
+                        踩({{ comment.attributes.dislike }})
+                    </button>
                 </td>
             </tr>
             </tbody>
