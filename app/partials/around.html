@@ -3,10 +3,26 @@
 <div class="container">
     <div class="col-lg-10 col-lg-offset-1 col-sm-10 col-sm-offset-1 page-box-white"
          style="background-color:white;border-radius:8px;padding:15px;">
-        <ul class="nav nav-tabs" role="tablist" id="tabNav">
-            <li class="active" ng-click="loadIdeas(0)"><a href="">按人气</a></li>
-            <li ng-click="loadIdeas(1)"><a href="">按发布时间</a></li>
-        </ul>
+
+        <nav class="navbar navbar-default" role="navigation">
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active" ng-click="loadIdeas(0)"><a href="">按人气</a></li>
+                    <li ng-click="loadIdeas(1)"><a href="">按发布时间</a></li>
+                    <li class="dropdown">
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown">{{ tagLabel }}<span
+                                class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li ng-repeat="tag in tags">
+                                <a href="" ng-click="filterIdeas(tag)">{{ tag }}</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </nav>
         <table class="table table-striped">
             <thead>
             <tr>

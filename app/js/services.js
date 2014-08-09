@@ -15,6 +15,10 @@ angular.module('iBoard.services', [])
                 err("Invalid request!");
             }
         };
+
+        this.tagResources = function () {
+            return ["互联网", "IT", "应用", "O2O", "大数据", "云计算", "深度学习"];
+        }
     })
 
     .factory('User', [ 'ToolsProvider', function (ToolsProvider) {
@@ -151,7 +155,8 @@ angular.module('iBoard.services', [])
             ToolsProvider.checkUserStatus(function (user) {
                 idea.save({
                     publisher: user,
-                    content: ideaData.content
+                    content: ideaData.content,
+                    tags: ideaData.tags
                 }, {
                     success: function (_idea) {
                         succCallback(_idea);
@@ -326,6 +331,17 @@ angular.module('iBoard.services', [])
             }
         };
 
+        var filterIdeas = function (tag, succCallback, errCallback) {
+            checkIdeaResourcesStatus(function (_ideas) {
+                var filteredIdeas = _.filter(_ideas, function (idea) {
+                    return  _.contains(idea.attributes.tags, tag);
+                });
+                succCallback(filteredIdeas);
+            }, function (err) {
+                errCallback(err);
+            })
+        };
+
         /**
          * Get all liked users related to a specific idea
          * @param idea the idea for querying users
@@ -350,6 +366,7 @@ angular.module('iBoard.services', [])
             getIdeaById: getIdeaById,
             getUserIdeas: getUserIdeas,
             getFeaturedIdeas: getFeaturedIdeas,
+            filterIdeas: filterIdeas,
             getAllLikedUsers: getAllLikedUsers
         }
 

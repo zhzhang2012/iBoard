@@ -69,6 +69,7 @@ angular.module('iBoard.controllers', [])
                 User.register(data, function (user) {
                     // Resolve digest Cycle
                     $scope.$apply(function () {
+                        $('.modal-backdrop').remove();
                         $location.path('/center');
                     })
                 }, function (err) {
@@ -91,6 +92,7 @@ angular.module('iBoard.controllers', [])
                 }
                 User.login($scope.user, function (usr) {
                     $scope.$apply(function () {
+                        $('.modal-backdrop').remove();
                         $location.path('/center');
                     })
                 }, function (err) {
@@ -114,6 +116,8 @@ angular.module('iBoard.controllers', [])
     .controller('AroundCtrl', ['$scope', '$location', '$q', 'User', 'Idea', 'Suggest', 'ToolsProvider',
         function ($scope, $location, $q, User, Idea, Suggest, ToolsProvider) {
             $scope.ideas = [];
+            $scope.tags = ToolsProvider.tagResources();
+            $scope.tagLabel = "按Tag筛选";
             //$scope.likes = [];
             $scope.errors = {};
 
@@ -171,6 +175,15 @@ angular.module('iBoard.controllers', [])
                 });
             };
             $scope.loadIdeas(0);
+
+            $scope.filterIdeas = function (tagName) {
+                $scope.tagLabel = tagName;
+                Idea.filterIdeas(tagName, function (_ideas) {
+                    $scope.ideas = _ideas;
+                }, function (err) {
+                    $scope.errors = err;
+                })
+            };
 
             $scope.like = function (idea, ideaIndex) {
                 ToolsProvider.checkUserStatus(function (user) {
@@ -360,13 +373,33 @@ angular.module('iBoard.controllers', [])
         }
     }])
 
-    .controller('NavbarCtrl', ['$scope', '$location', 'User', 'Idea', function ($scope, $location, User, Idea) {
+    .controller('NavbarCtrl', ['$scope', '$location', 'User', 'Idea', 'ToolsProvider', function ($scope, $location, User, Idea, ToolsProvider) {
         $scope.loginUser = AV.User.current();
         $scope.username = $scope.loginUser ? $scope.loginUser.attributes.username : null;
         $scope.idea = {};
         $scope.errors = {};
 
+        $('#ideaTags').tagit({
+            fieldName: "ideaTypes",
+            allowSpaces: true,
+            //showAutocompleteOnFocus: true,
+            availableTags: ToolsProvider.tagResources(),
+            tagLimit: 5,
+            placeholderText: "输入Tag回车添加",
+            onTagLimitExceeded: function () {
+                $scope.$apply(function () {
+                    $scope.errors.hasTagErr = true;
+                    $scope.errors.tagErr = "最多只能添加5个Tags";
+                })
+            }
+        });
+
         $scope.create = function () {
+            var tagsInputs = document.getElementsByName('ideaTypes');
+            $scope.idea.tags = [];
+            for (var i = 0; i < tagsInputs.length; i++) {
+                $scope.idea.tags.push(tagsInputs[i].defaultValue);
+            }
             if ($scope.loginUser && $scope.idea.content != "") {
                 Idea.createIdea($scope.idea, function (idea) {
                     $scope.$apply(function () {

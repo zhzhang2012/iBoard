@@ -1,5 +1,9 @@
 <div class="header" ng-controller="NavbarCtrl">
-
+    <style>
+        .ui-autocomplete {
+            z-index: 5000
+        }
+    </style>
     <nav class="navbar navbar-inverse navbar-static-top">
         <div class="container">
             <div class="navbar-header">
@@ -38,6 +42,11 @@
                 <div class="modal-body">
                     <textarea class="form-control" rows="3" ng-model="idea.content"
                               maxlength="140" placeholder="不要多于140个字哟~~"></textarea>
+                    <span>Tags</span>
+                    <ul id="ideaTags" style="z-index: 100000">
+
+                    </ul>
+                    <div class="alert alert-danger" ng-show="errors.hasTagErr">{{ errors.tagErr }}</div>
                 </div>
                 <div class="form-group has-error">
                     <p class="error-msg">{{ errors.other }}</p>
