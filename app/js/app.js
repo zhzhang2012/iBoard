@@ -38,6 +38,9 @@ angular.module('iBoard', [
                         return '/'
                     }
                 }
+            }).when('/idea/:ideaId/apply', {
+                templateUrl: 'partials/apply.html',
+                controller: "ApplyCtrl"
             }).when('/marquee', {
                 templateUrl: 'partials/marquee.html',
                 controller: 'HomeCtrl'

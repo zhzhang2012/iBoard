@@ -16,8 +16,12 @@ angular.module('iBoard.services', [])
             }
         };
 
+        //TODO load from json file
         this.tagResources = function () {
             return ["互联网", "IT", "应用", "O2O", "大数据", "云计算", "深度学习"];
+        };
+        this.commentCategories = function () {
+            return ["商业", "设计", "技术", "吐槽区"];
         }
     })
 
@@ -437,6 +441,7 @@ angular.module('iBoard.services', [])
                     commenter: user,
                     replyTo: relatedUser,
                     content: data.content,
+                    category: data.category,
                     like: 0,
                     dislike: 0
                 }, {success: function (_comment) {
@@ -493,5 +498,30 @@ angular.module('iBoard.services', [])
             create: createComment,
             getIdeaComments: getIdeaComments,
             likedislikeComment: likedislikeComment
+        }
+    }])
+
+    .factory('Application', [ function () {
+        var createApp = function (application, succCallback, errCallback) {
+            var Application = AV.Object.extend('Application');
+            var Idea = AV.Object.extend('Idea');
+            var app = new Application();
+            var idea = new Idea();
+            idea.id = application.ideaId;
+
+            app.save({
+                name: application.name,
+                email: application.email,
+                idea: idea
+            }, function (_app) {
+                succCallback(_app);
+            }, function (obj, err) {
+                console.log("Error occurred when applying for MVP");
+                errCallback(err);
+            })
+        };
+
+        return {
+            create: createApp
         }
     }]);

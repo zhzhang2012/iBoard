@@ -9,18 +9,14 @@ angular.module('iBoard.controllers', [])
         var ideasResourcePromise = deferred.promise;
 
         Idea.getFeaturedIdeas(0, 10, function (_ideas) {
-            //$scope.$apply(function () {
             $scope.ideas = _ideas;
             deferred.resolve(_ideas);
             $('.carousel').carousel({
                 interval: 5000
             })
-            //})
         }, function (_ideas, err) {
-            //$scope.$apply(function () {
             $scope.errors = err.message;
             deferred.reject();
-            //})
         });
 
         ideasResourcePromise.then(function (_ideas) {
@@ -146,15 +142,11 @@ angular.module('iBoard.controllers', [])
                 var ideasResourcePromise = deferred.promise;
 
                 Idea.getFeaturedIdeas(type, 10, function (_ideas) {
-                    //$scope.$apply(function () {
                     $scope.ideas = _ideas;
                     deferred.resolve(_ideas);
-                    //})
                 }, function (_ideas, err) {
-                    //$scope.$apply(function () {
                     $scope.errors = err.message;
                     deferred.reject();
-                    //})
                 });
 
                 ideasResourcePromise.then(function (_ideas) {
@@ -225,110 +217,120 @@ angular.module('iBoard.controllers', [])
             }
         }])
 
-    .controller('IdeaCtrl', ['$scope', '$routeParams', '$q', 'Idea', 'User', 'Suggest', 'Comment', function ($scope, $routeParams, $q, Idea, User, Suggest, Comment) {
-        $scope.idea = {};
+    .controller('IdeaCtrl', ['$scope', '$location', '$routeParams', '$q', 'Idea', 'User', 'Suggest', 'Comment', 'ToolsProvider',
+        function ($scope, $location, $routeParams, $q, Idea, User, Suggest, Comment, ToolsProvider) {
+            $scope.idea = {};
 
-        var ideaId = $routeParams.ideaId;
-        var deferred = $q.defer();
-        var ideaResourcePromise = deferred.promise;
-        $scope.errors = {};
+            var ideaId = $routeParams.ideaId;
+            var deferred = $q.defer();
+            var ideaResourcePromise = deferred.promise;
+            $scope.errors = {};
 
-        $scope.suggests = [];
+            $scope.suggests = [];
 
-        $scope.comments = [];
-        $scope.commentContent = "";
-        $scope.replyTo = $scope.replyToID = "";
-        $scope.created = $scope.createSuccess = $scope.createFailure = false;
-        var data = {
-            ideaId: ideaId
-        };
+            $scope.allComments = $scope.comments = [];
+            $scope.commentCategories = ToolsProvider.commentCategories();
+            $scope.newComment = {
+                ideaId: ideaId
+            };
+            $scope.replyTo = $scope.replyToID = "";
+            $scope.created = $scope.createSuccess = $scope.createFailure = false;
 
-        Idea.getIdeaById(ideaId, function (_idea) {
-            $scope.$apply(function () {
-                $scope.idea = _idea;
-                $scope.replyToID = $scope.idea.attributes.publisher.id;
-                $scope.replyTo = $scope.idea.attributes.publisher.attributes.username;
-                //$("#makeComment").attr("placeholder", "写下你的想法，告诉" + $scope.replyTo + "吧！");
-                deferred.resolve();
-            })
-        }, function (err) {
-            $scope.$apply(function () {
-                $scope.errors.ideaErr = err;
-                deferred.reject();
-            })
-        });
-
-        ideaResourcePromise.then(function () {
-            $scope.idea.createdAt = new Date($scope.idea.createdAt).toDateString();
-
-            Idea.getAllLikedUsers($scope.idea, function (users) {
+            Idea.getIdeaById(ideaId, function (_idea) {
                 $scope.$apply(function () {
-                    $scope.likesCount = users.length;
+                    $scope.idea = _idea;
+                    $scope.replyToID = $scope.idea.attributes.publisher.id;
+                    $scope.replyTo = $scope.idea.attributes.publisher.attributes.username;
+                    //$("#makeComment").attr("placeholder", "写下你的想法，告诉" + $scope.replyTo + "吧！");
+                    deferred.resolve();
+                })
+            }, function (err) {
+                $scope.$apply(function () {
+                    $scope.errors.ideaErr = err;
+                    deferred.reject();
+                })
+            });
+
+            ideaResourcePromise.then(function () {
+                $scope.idea.createdAt = new Date($scope.idea.createdAt).toDateString();
+
+                Idea.getAllLikedUsers($scope.idea, function (users) {
+                    $scope.$apply(function () {
+                        $scope.likesCount = users.length;
+                    })
+                }, function (err) {
+                    $scope.$apply(function () {
+                        $scope.errors = err;
+                    });
+                })
+            });
+
+            Suggest.getIdeaSuggests(ideaId, function (_suggests) {
+                $scope.$apply(function () {
+                    $scope.suggests = _suggests;
                 })
             }, function (err) {
                 $scope.$apply(function () {
                     $scope.errors = err;
-                });
-            })
-        });
-
-        Suggest.getIdeaSuggests(ideaId, function (_suggests) {
-            $scope.$apply(function () {
-                $scope.suggests = _suggests;
-            })
-        }, function (err) {
-            $scope.$apply(function () {
-                $scope.errors = err;
-            })
-        });
-
-        var loadComments = function () {
-            Comment.getIdeaComments(ideaId, function (_comments) {
-                $scope.$apply(function () {
-                    $scope.comments = _comments;
-                })
-            }, function (err) {
-                $scope.$apply(function () {
-                    $scope.errors.commentErr = err;
                 })
             });
-        };
-        loadComments();
 
-        $scope.createComment = function (replyToId) {
-            data.content = $scope.commentContent;
-            data.replyTo = replyToId;
-            Comment.create(data, function (_comment) {
-                $scope.$apply(function () {
-                    $scope.created = $scope.createSuccess = true;
-                    loadComments();
-                })
-            }, function (err) {
-                $scope.$apply(function () {
-                    $scope.created = $scope.createFalure = true;
-                })
-            })
-        };
+            var loadComments = function () {
+                Comment.getIdeaComments(ideaId, function (_comments) {
+                    $scope.$apply(function () {
+                        $scope.allComments = $scope.comments = _comments;
+                    })
+                }, function (err) {
+                    $scope.$apply(function () {
+                        $scope.errors.commentErr = err;
+                    })
+                });
+            };
+            loadComments();
 
-        $scope.likeComment = function (commentId, commentIndex, type) {
-            Comment.likedislikeComment(commentId, type, function () {
-                $scope.$apply(function () {
-                    $scope.comments[commentIndex].attributes[type]++;
+            $scope.createComment = function (replyToId) {
+                $scope.newComment.replyTo = replyToId;
+                Comment.create($scope.newComment, function (_comment) {
+                    $scope.$apply(function () {
+                        $scope.created = $scope.createSuccess = true;
+                        loadComments();
+                    })
+                }, function (err) {
+                    $scope.$apply(function () {
+                        $scope.created = $scope.createFalure = true;
+                    })
                 })
-            }, function (err) {
-                $scope.$apply(function () {
-                    $scope.errors.commentErr = err;
-                })
-            })
-        };
+            };
 
-        $scope.changeReplyToID = function (newReplyToID, newReplyTo) {
-            $scope.replyToID = newReplyToID;
-            $scope.replyTo = newReplyTo;
-            //$("#makeComment").attr("placeholder", "写下你的想法，告诉" + $scope.replyTo + "吧！");
-            $("#makeComment").focus();
-        };
-    }])
+            $scope.filterComments = function (category) {
+                $scope.comments = _.filter($scope.allComments, function (_comment) {
+                    return category == _comment.attributes.category;
+                })
+            };
+
+            $scope.likeComment = function (commentId, commentIndex, type) {
+                Comment.likedislikeComment(commentId, type, function () {
+                    $scope.$apply(function () {
+                        $scope.comments[commentIndex].attributes[type]++;
+                    })
+                }, function (err) {
+                    $scope.$apply(function () {
+                        $scope.errors.commentErr = err;
+                    })
+                })
+            };
+
+            $scope.changeReplyToID = function (newReplyToID, newReplyTo) {
+                $scope.replyToID = newReplyToID;
+                $scope.replyTo = newReplyTo;
+                //$("#makeComment").attr("placeholder", "写下你的想法，告诉" + $scope.replyTo + "吧！");
+                $("#makeComment").focus();
+            };
+
+            $scope.enterApply = function () {
+                $location.path('/idea/' + ideaId + '/apply');
+            }
+        }])
 
     .controller('CenterCtrl', ['$scope', '$location', 'Idea', 'User', function ($scope, $location, Idea, User) {
         $scope.ideas = [];
@@ -428,4 +430,25 @@ angular.module('iBoard.controllers', [])
                 console.log("Invalid logout request!");
             })
         };
+    }])
+
+    .controller('ApplyCtrl', ['$scope', '$location', '$routeParams', 'Application', function ($scope, $location, $routeParams, Application) {
+        $scope.submitted = false;
+        $scope.application = {
+            ideaId: $routeParams.ideaId
+        };
+        $scope.errors = "";
+
+        $scope.apply = function (form) {
+            $scope.submitted = true;
+            Application.create($scope.application, function () {
+                $scope.$apply(function () {
+
+                })
+            }, function (err) {
+                $scope.$apply(function () {
+                    $scope.errors = err;
+                })
+            })
+        }
     }]);

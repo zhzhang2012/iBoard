@@ -1,74 +1,80 @@
 <div ng-include="'partials/navbar.html'"></div>
 
 <div class="container">
-    <div class="col-lg-10 col-lg-offset-1 col-sm-10 col-sm-offset-1 page-box-white" style="background-color:white;border-radius:8px;padding:15px;">
-    <h2>{{ idea.attributes.content }}</h2>
-    <h4>{{ idea.attributes.publisher.attributes.username }}</h4>
-    <h5>{{ idea.createdAt }}</h5>
-    <br>
-    <h4><span class="label label-info">Likes:&nbsp;{{ likesCount }}</span></h4>
+    <div class="col-lg-10 col-lg-offset-1 col-sm-10 col-sm-offset-1 page-box-white"
+         style="background-color:white;border-radius:8px;padding:15px;">
+        <h2>{{ idea.attributes.content }}</h2>
+        <h4>{{ idea.attributes.publisher.attributes.username }}</h4>
+        <h5>{{ idea.createdAt }}</h5>
+        <br>
+        <button class="btn btn-danger" ng-click="enterApply()">Build your own MVP <strong>NOW</strong>!</button>
+        <br>
+        <h4><span class="label label-info">Likes:&nbsp;{{ likesCount }}</span></h4>
 
-    <h3>Suggestions</h3>
+        <h3>Suggestions</h3>
 
-    <div>
-        <table class="table">
-            <tbody>
-            <tr ng-repeat="suggest in suggests">
-                <td>{{ suggest.attributes.category }}</td>
-                <td>{{ suggest.attributes.advisor.attributes.username }}</td>
-                <td>{{ suggest.attributes.source }}</td>
-            </tr>
-            </tbody>
-        </table>
+        <div>
+            <table class="table">
+                <tbody>
+                <tr ng-repeat="suggest in suggests">
+                    <td>{{ suggest.attributes.category }}</td>
+                    <td>{{ suggest.attributes.advisor.attributes.username }}</td>
+                    <td>{{ suggest.attributes.source }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        </p>
+        <div>
+            <p>
+
+            <h3>Comments</h3>
+            <table class="table">
+                <label class="label label-primary">Add filters</label>
+                <ul class="nav nav-pills">
+                    <li ng-repeat="category in commentCategories">
+                        <a href="" ng-click="filterComments(category)">{{ category }}</a>
+                    </li>
+                </ul>
+                <br>
+                <tbody>
+                <tr ng-repeat="comment in comments">
+                    <td><strong>Reply To {{ comment.attributes.replyTo.attributes.username }}:</strong> {{
+                        comment.attributes.content }}
+                    </td>
+                    <td>{{ comment.attributes.commenter.attributes.username }}</td>
+                    <td>{{ comment.createdAt }}</td>
+                    <td>
+                        <button class="btn btn-info"
+                                ng-click="changeReplyToID(comment.attributes.commenter.id, comment.attributes.commenter.attributes.username)">
+                            Reply
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" ng-click="likeComment(comment.id, $index, 'like')">
+                            顶({{ comment.attributes.like }})
+                        </button>
+                        <button class="btn btn-danger" ng-click="likeComment(comment.id, $index, 'dislike')">
+                            踩({{ comment.attributes.dislike }})
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr>
+            <textarea class="form form-control" rows="3"
+                      ng-model="newComment.content"
+                      placeholder="写下你的想法，告诉{{ replyTo }}吧！" id="makeComment"></textarea><br>
+            <select class="form-control" ng-model="newComment.category"
+                    ng-options="option for option in commentCategories">
+            </select><br>
+
+            <div class="alert alert-success" ng-show="created && createSuccess">评论发布成功！</div>
+            <div class="alert alert-danger" ng-show="created && createFailure">提交过程出现错误！</div>
+            <button class="btn btn-primary"
+                    ng-click="createComment(replyToID)">提 交
+            </button>
+        </div>
     </div>
-    </p>
-    <div>
-        <p>
-
-        <h3>Comments</h3>
-        <table class="table">
-            <!--<thead>-->
-            <!--<tr>-->
-            <!--<th>内容</th>-->
-            <!--<th>发布日期</th>-->
-            <!--<th>操作</th>-->
-            <!--</tr>-->
-            <!--</thead>-->
-            <tbody>
-            <tr ng-repeat="comment in comments">
-                <td><strong>Reply To {{ comment.attributes.replyTo.attributes.username }}:</strong> {{
-                    comment.attributes.content }}
-                </td>
-                <td>{{ comment.attributes.commenter.attributes.username }}</td>
-                <td>{{ comment.createdAt }}</td>
-                <td>
-                    <button class="btn btn-info"
-                            ng-click="changeReplyToID(comment.attributes.commenter.id, comment.attributes.commenter.attributes.username)">
-                        Reply
-                    </button>
-                </td>
-                <td>
-                    <button class="btn btn-primary" ng-click="likeComment(comment.id, $index, 'like')">
-                        顶({{ comment.attributes.like }})
-                    </button>
-                    <button class="btn btn-danger" ng-click="likeComment(comment.id, $index, 'dislike')">
-                        踩({{ comment.attributes.dislike }})
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-
-        <hr>
-        <textarea class="form form-control" rows="3"
-                  ng-model="commentContent"
-                  placeholder="写下你的想法，告诉{{ replyTo }}吧！" id="makeComment"></textarea><br>
-
-        <div class="alert alert-success" ng-show="created && createSuccess">评论发布成功！</div>
-        <div class="alert alert-danger" ng-show="created && createFailure">提交过程出现错误！</div>
-        <button class="btn btn-primary"
-                ng-click="createComment(replyToID)">提 交
-        </button>
-    </div>
-</div>
 </div>
