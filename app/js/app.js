@@ -38,5 +38,8 @@ angular.module('iBoard', [
                         return '/'
                     }
                 }
+            }).when('/marquee', {
+                templateUrl: 'partials/marquee.html',
+                controller: 'HomeCtrl'
             }).otherwise({redirectTo: '/'});
     }]);

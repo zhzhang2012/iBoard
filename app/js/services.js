@@ -240,10 +240,8 @@ angular.module('iBoard.services', [])
         };
 
         /**
-         * Get featured ideas in the database
-         * TODO Select ideas based on likes and comments
-         * @param succCallback Do something with the ideas
-         * @param errCallback Report the error to the calling agent
+         * Load all ideas and its relative number of likes
+         * Store data in a local array
          */
         var loadAllIdeas = function (succCallback, errCallback) {
             var Idea = AV.Object.extend("Idea");
@@ -294,6 +292,13 @@ angular.module('iBoard.services', [])
             callback(sortedIdeas.reverse().slice(0, limit));
         };
 
+        /**
+         * Get featured ideas in the database
+         * @param type sorting type
+         * @param limit how many featured ideas to load
+         * @param succCallback Do something with the ideas
+         * @param errCallback Report the error to the calling agent
+         */
         var getFeaturedIdeas = function (type, limit, succCallback, errCallback) {
             switch (type) {
                 case 0:

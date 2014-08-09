@@ -4,15 +4,55 @@
 
 angular.module('iBoard.controllers', [])
     .controller('HomeCtrl', ['$scope', '$location', '$q', 'Idea', 'User', function ($scope, $location, $q, Idea, User) {
+        $scope.ideas = [];
+        var deferred = $q.defer();
+        var ideasResourcePromise = deferred.promise;
+
+        Idea.getFeaturedIdeas(0, 10, function (_ideas) {
+            //$scope.$apply(function () {
+            $scope.ideas = _ideas;
+            deferred.resolve(_ideas);
+            $('.carousel').carousel({
+                interval: 5000
+            })
+            //})
+        }, function (_ideas, err) {
+            //$scope.$apply(function () {
+            $scope.errors = err.message;
+            deferred.reject();
+            //})
+        });
+
+        ideasResourcePromise.then(function (_ideas) {
+            angular.forEach(_ideas, function (idea, index) {
+                $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
+            });
+        });
+
+        $scope.encode = function (ideaId) {
+            return encodeURIComponent("http://127.0.0.1:8000/app/#/idea/" + ideaId);
+        };
+
+        $scope.go = function (dest) {
+            $('.carousel').carousel(dest);
+        };
+
+        $scope.autoSlide = function () {
+            setInterval(function () {
+                $scope.go('next');
+            }, 6000);
+        };
+        $scope.autoSlide();
+
+
+    }])
+
+    .controller('ReglogCtrl', ['$scope', '$location', 'User', function ($scope, $location, User) {
         $scope.user = {};
         $scope.submitted = false;
         $scope.errors = {hasRegisterErr: false, registerErr: "",
             hasLoginErr: false, loginErr: ""};
         $scope.loginUser = AV.User.current();
-
-        $scope.ideas = [];
-        var deferred = $q.defer();
-        var ideasResourcePromise = deferred.promise;
 
         $scope.register = function (form) {
             $scope.submitted = true;
@@ -62,31 +102,6 @@ angular.module('iBoard.controllers', [])
             }
         };
 
-        Idea.getFeaturedIdeas(0, 10, function (_ideas) {
-            //$scope.$apply(function () {
-            $scope.ideas = _ideas;
-            deferred.resolve(_ideas);
-            $('.carousel').carousel({
-                interval: 5000
-            })
-            //})
-        }, function (_ideas, err) {
-            //$scope.$apply(function () {
-            $scope.errors = err.message;
-            deferred.reject();
-            //})
-        });
-
-        ideasResourcePromise.then(function (_ideas) {
-            angular.forEach(_ideas, function (idea, index) {
-                $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
-            });
-        });
-
-        $scope.go = function (dest) {
-            $('.carousel').carousel(dest);
-        };
-
         $scope.currentTab = 1;
         $scope.tabSwitch = function (tabNo) {
             if ($scope.currentTab != tabNo) {
@@ -94,105 +109,108 @@ angular.module('iBoard.controllers', [])
                 $scope.currentTab = tabNo;
             }
         };
-
-        $scope.autoSlide = function () {
-            setInterval(function () {
-                $scope.go('next');
-            }, 3000);
-        };
-        $scope.autoSlide();
     }])
 
-    .controller('AroundCtrl', ['$scope', '$location', '$q', 'User', 'Idea', 'Suggest', function ($scope, $location, $q, User, Idea, Suggest) {
-        $scope.ideas = [];
-        //$scope.likes = [];
-        $scope.errors = {};
+    .controller('AroundCtrl', ['$scope', '$location', '$q', 'User', 'Idea', 'Suggest', 'ToolsProvider',
+        function ($scope, $location, $q, User, Idea, Suggest, ToolsProvider) {
+            $scope.ideas = [];
+            //$scope.likes = [];
+            $scope.errors = {};
 
-        $scope.suggestOptions = [
-            {name: "已经被实现", value: "已实现"},
-            {name: "我正在实现", value: "实现中"}
-        ];
-        $scope.suggestData = {};
-        $scope.suggestTargetIdea = "";
+            $scope.suggestOptions = [
+                {name: "已经被实现", value: "已实现"},
+                {name: "我正在实现", value: "实现中"}
+            ];
+            $scope.suggestData = {};
+            $scope.suggestTargetIdea = "";
 
-        $scope.isSelf = function (publisherId) {
-            return AV.User.current() && publisherId == AV.User.current().id;
-        };
-        var disableLikeButton = function (likedUsers) {
-            if (!AV.User.current())
+            $scope.isSelf = function (publisherId) {
+                return AV.User.current() && publisherId == AV.User.current().id;
+            };
+            var disableLikeButton = function (likedUsers) {
+                if (!AV.User.current())
+                    return false;
+                for (var i = 0; i < likedUsers.length; i++) {
+                    if (likedUsers[i].id == AV.User.current().id)
+                        return true;
+                }
                 return false;
-            for (var i = 0; i < likedUsers.length; i++) {
-                if (likedUsers[i].id == AV.User.current().id)
-                    return true;
-            }
-            return false;
-        };
+            };
 
-        $scope.loadIdeas = function (type) {
-            var deferred = $q.defer();
-            var ideasResourcePromise = deferred.promise;
+            $scope.loadIdeas = function (type) {
+                var deferred = $q.defer();
+                var ideasResourcePromise = deferred.promise;
 
-            Idea.getFeaturedIdeas(type, 10, function (_ideas) {
-                //$scope.$apply(function () {
-                $scope.ideas = _ideas;
-                deferred.resolve(_ideas);
-                //})
-            }, function (_ideas, err) {
-                //$scope.$apply(function () {
-                $scope.errors = err.message;
-                deferred.reject();
-                //})
-            });
-
-            ideasResourcePromise.then(function (_ideas) {
-                angular.forEach(_ideas, function (idea, index) {
-                    $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
-                    Idea.getAllLikedUsers(idea, function (users) {
-                        $scope.$apply(function () {
-                            var disabled = disableLikeButton(users);
-                            $scope.ideas[index].like.disabled = disabled;
-                            $scope.ideas[index].like.label = disabled ? "Liked" : "Like";
-                        })
-                    }, function (err) {
-                        $scope.$apply(function () {
-                            $scope.errors = err;
-                        });
-                    })
+                Idea.getFeaturedIdeas(type, 10, function (_ideas) {
+                    //$scope.$apply(function () {
+                    $scope.ideas = _ideas;
+                    deferred.resolve(_ideas);
+                    //})
+                }, function (_ideas, err) {
+                    //$scope.$apply(function () {
+                    $scope.errors = err.message;
+                    deferred.reject();
+                    //})
                 });
-            });
-        };
-        $scope.loadIdeas(0);
 
-        $scope.like = function (idea, ideaIndex) {
-            $scope.ideas[ideaIndex].like.num++;
-            $scope.ideas[ideaIndex].like.disabled = true;
-            $scope.ideas[ideaIndex].like.label = 'Liked';
-            User.like(idea, function (err) {
-                $scope.errors = err.message;
-            })
-        };
+                ideasResourcePromise.then(function (_ideas) {
+                    angular.forEach(_ideas, function (idea, index) {
+                        $scope.ideas[index].createdAt = new Date($scope.ideas[index].createdAt).toDateString();
+                        Idea.getAllLikedUsers(idea, function (users) {
+                            $scope.$apply(function () {
+                                var disabled = disableLikeButton(users);
+                                $scope.ideas[index].like.disabled = disabled;
+                                $scope.ideas[index].like.label = disabled ? "Liked" : "Like";
+                            })
+                        }, function (err) {
+                            $scope.$apply(function () {
+                                $scope.errors = err;
+                            });
+                        })
+                    });
+                });
+            };
+            $scope.loadIdeas(0);
 
-        $scope.setSuggestTargetIdea = function (ideaId) {
-            $scope.suggestTargetIdea = ideaId;
-        };
-        $scope.suggest = function () {
-            $scope.suggestData.ideaId = $scope.suggestTargetIdea;
-            Suggest.create($scope.suggestData, function (_suggest) {
-                $scope.$apply(function () {
-                    $scope.suggestData = $scope.suggestTargetIdea = {};
-                    $("#suggestIdea").modal('hide');
+            $scope.like = function (idea, ideaIndex) {
+                ToolsProvider.checkUserStatus(function (user) {
+                    $scope.ideas[ideaIndex].like.num++;
+                    $scope.ideas[ideaIndex].like.disabled = true;
+                    $scope.ideas[ideaIndex].like.label = 'Liked';
+                    User.like(idea, function (err) {
+                        $scope.errors = err.message;
+                    })
+                }, function (err) {
+                    $('#reglog').modal('show');
                 })
-            }, function (err) {
-                $scope.$apply(function () {
-                    $scope.errors.other = err;
-                })
-            })
-        };
+            };
 
-        $scope.enterIdea = function (ideaId) {
-            $location.path('idea/' + ideaId);
-        }
-    }])
+            $scope.setSuggestTargetIdea = function (ideaId) {
+                ToolsProvider.checkUserStatus(function (user) {
+                    $scope.suggestTargetIdea = ideaId;
+                    $('#suggestIdea').modal('show');
+                }, function (err) {
+                    $('#reglog').modal('show');
+                })
+            };
+            $scope.suggest = function () {
+                $scope.suggestData.ideaId = $scope.suggestTargetIdea;
+                Suggest.create($scope.suggestData, function (_suggest) {
+                    $scope.$apply(function () {
+                        $scope.suggestData = $scope.suggestTargetIdea = {};
+                        $("#suggestIdea").modal('hide');
+                    })
+                }, function (err) {
+                    $scope.$apply(function () {
+                        $scope.errors.other = err;
+                    })
+                })
+            };
+
+            $scope.enterIdea = function (ideaId) {
+                $location.path('idea/' + ideaId);
+            }
+        }])
 
     .controller('IdeaCtrl', ['$scope', '$routeParams', '$q', 'Idea', 'User', 'Suggest', 'Comment', function ($scope, $routeParams, $q, Idea, User, Suggest, Comment) {
         $scope.idea = {};

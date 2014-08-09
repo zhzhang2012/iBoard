@@ -1,0 +1,25 @@
+<!--Carousal Fading Effect CSS Code-->
+<div class="container">
+    <!--Slide-->
+    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        <ol class="carousel-indicators">
+            <li data-target="#carousel-example-generic" ng-repeat="idea in ideas"
+                data-slide-to="{{ $index }}" ng-class="{active: $index == 0}"></li>
+        </ol>
+
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner">
+            <div class="item" ng-class="{active: !$index}" ng-repeat="idea in ideas">
+                <img src="img/carousal_bg.png">
+
+                <div class="carousel-caption">
+                    <h1>{{ idea.attributes.content }}</h1>
+                    <h4>{{ idea.attributes.publisher.attributes.username }}</h4>
+                    <h4>{{ idea.createdAt }}</h4>
+                    <img src="http://qr.liantu.com/api.php?w=300&m=30&text={{ encode(idea.id) }}"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

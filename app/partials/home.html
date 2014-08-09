@@ -1,133 +1,38 @@
 <div ng-include="'partials/navbar.html'"></div>
 <!--Carousal Fading Effect CSS Code-->
 <style>
-/* Fade transition for carousel items */
-.carousel .item {
-    left: 0 !important;
-      -webkit-transition: opacity 1.0s !important; /*adjust timing here */
-         -moz-transition: opacity 1.0s !important;
-           -o-transition: opacity 1.0s !important;
-              transition: opacity 1.0s !important;
-}
-.carousel-control {
-    background-image: none !important; /* remove background gradients on controls */
-}
-/* Fade controls with items */
-.next.left,
-.prev.right {
-    opacity: 1 !important;
-    z-index: 1 !important;
-}
-.active.left,
-.active.right {
-    opacity: 0 !important;
-    z-index: 2 !important;
-}
+        /* Fade transition for carousel items */
+    .carousel .item {
+        left: 0 !important;
+        -webkit-transition: opacity 1.0s !important; /*adjust timing here */
+        -moz-transition: opacity 1.0s !important;
+        -o-transition: opacity 1.0s !important;
+        transition: opacity 1.0s !important;
+    }
+
+    .carousel-control {
+        background-image: none !important; /* remove background gradients on controls */
+    }
+
+        /* Fade controls with items */
+    .next.left,
+    .prev.right {
+        opacity: 1 !important;
+        z-index: 1 !important;
+    }
+
+    .active.left,
+    .active.right {
+        opacity: 0 !important;
+        z-index: 2 !important;
+    }
 </style>
 
 <div class="container">
 
     <!--Login/Signup-->
-    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" style="background-color:white;border-radius:8px;padding:15px;">
-        <ul class="nav nav-tabs" role="tablist" id="tabNav">
-            <li class="active" ng-click="tabSwitch(1)"><a href="">注册</a></li>
-            <li ng-click="tabSwitch(2)"><a href="">登录</a></li>
-        </ul>
-        <!--Signup-->
-        <div class="signup-container page-box-white" id="Signup" ng-show="currentTab==1">
-            <br>
-            <div class="alert alert-success" role="alert"><strong>已经注册过了？</strong> 点击上方的“登录”按钮，回到属于自己的那片天地！</div>
-            <div class="alert alert-danger" ng-show="errors.hasRegisterError">
-                <p>注册过程中出现错误：{{ errors.registerErr }}</p>
-            </div>
-            <form class="form" name="register_form" ng-submit="register(register_form)" novalidate>
-                <div class="form-group">
-                    <input type="text" name="email" class="form-control" ng-model="user.email"
-                           placeholder="请输入邮箱"
-                           required
-                           ng-email="user.email"
-                           ng-unique="user.email"/>
-                        <span class="error-msg" ng-show="register_form.email.$error.required && submitted">
-                          请输入邮箱
-                        </span>
-                        <span class="error-msg" ng-show="register_form.email.$error.ep && submitted">
-                          请输入格式正确的邮箱
-                        </span>
-                        <span class="error-msg" ng-show="register_form.email.$error.unique && submitted">
-                          此邮箱已被注册
-                        </span>
-                </div>
-                <div class="form-group">
-                    <input type="text" name="username" class="form-control" ng-model="user.username"
-                           placeholder="请输入用户名"
-                           required
-                           ng-unique="user.username"
-                            />
-                        <span class="error-msg" ng-show="register_form.username.$error.required && submitted">
-                          请输入用户名
-                        </span>
-                        <span class="error-msg" ng-show="register_form.username.$error.unique && submitted">
-                          很遗憾，此用户名已经被注册
-                        </span>
-                </div>
-                <div class="form-group">
-                    <input type="password" name="password" class="form-control" ng-model="user.password"
-                           placeholder="密码"
-                           required
-                           ng-minlength="6"
-                           ng-maxlength="12"
-                            />
-                        <span class="error-msg"
-                              ng-show="register_form.password.$error.required && submitted">
-                          请输入密码
-                        </span>
-                        <span class="error-msg" ng-show="register_form.password.$error.minlength && submitted">
-                          密码由6-12位字母、数字或符号组成，区分大小写
-                        </span>
-                </div>
-                <div class="form-group">
-                    <input type="password" name="conpwd" class="form-control" ng-model="user.conpwd"
-                           placeholder="再输一次密码吧~"
-                           required
-                           ng-confirm/>
-                        <span class="error-msg" ng-show="register_form.conpwd.$error.required && submitted">
-                          密码不一致
-                        </span>
-                        <span class="error-msg"
-                              ng-show="register_form.conpwd.$error.confirm && submitted">
-                          密码不一致
-                        </span>
-                </div>
-                <button type="submit" class="btn btn-success btn-block">注册</button>
-            </form>
-        </div>
-
-        <!--Login-->
-        <div class="login-container page-box-white" id="Login" ng-show="currentTab==2">
-            <br>
-            <div class="alert alert-success" role="alert"><strong>还没有注册过？</strong> 点击上方的“注册”按钮，抓紧时间注册一个属于自己的账户吧！</div>
-            <div class="alert alert-danger" ng-show="errors.hasLoginError">
-                <p>登陆过程中出现错误：{{ errors.loginErr }}</p>
-            </div>
-            <form class="form" name="login_form" ng-submit="login(login_form)" novalidate>
-                <div class="form-group">
-                    <span class="fui-user"></span>
-                    <input type="text" name="userinfo" class="form-control" ng-model="user.username"
-                           placeholder="请输入用户名"
-                           required>
-                    <span class="error-msg" ng-show="login_form.userinfo.$error.required && submitted">用户名不能为空</span>
-                </div>
-                <div class="form-group">
-                    <span class="fui-lock"></span>
-                    <input type="password" name="login_password" class="form-control" ng-model="user.password"
-                           placeholder="密码" required>
-                    <!--<span class="error-msg">用户名或密码错误</span>-->
-                    <span class="error-msg"
-                          ng-show="login_form.login_password.$error.required && submitted">密码不能为空</span>
-                </div>
-                <button type="submit" class="btn btn-success btn-block">登录</button>
-            </form>
-        </div>
+    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" style="background-color:white;border-radius:8px;padding:15px;"
+         ng-include="'partials/reglog.html'">
     </div>
 
     <!--Slide-->
